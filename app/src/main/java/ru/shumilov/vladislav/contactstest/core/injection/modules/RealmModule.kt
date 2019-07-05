@@ -1,17 +1,17 @@
-package ru.vshumilov.agroholdingapp.modules.core.injection.modules
+package ru.shumilov.vladislav.contactstest.modules.core.injection.modules
 
 import dagger.Module
 import dagger.Provides
 import io.realm.Realm
 import io.realm.RealmConfiguration
-import ru.vshumilov.agroholdingapp.modules.core.injection.ApplicationScope
+import ru.shumilov.vladislav.contactstest.modules.core.injection.ApplicationScope
 
 @Module
 class RealmModule {
 
     companion object {
-        val REALM_SCHEMA_VERSION: Long = 1
-        val REALM_DB_NAME = "contacts"
+        const val REALM_SCHEMA_VERSION: Long = 1
+        const val REALM_DB_NAME = "contacts"
     }
 
     @Provides

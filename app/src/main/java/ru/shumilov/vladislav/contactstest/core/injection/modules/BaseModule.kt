@@ -1,4 +1,4 @@
-package ru.vshumilov.agroholdingapp.modules.login.injection
+package ru.shumilov.vladislav.contactstest.modules.login.injection
 
 import com.google.gson.Gson
 import okhttp3.OkHttpClient
@@ -9,7 +9,9 @@ import rx.schedulers.Schedulers
 
 open abstract class BaseModule<Api> {
 
-    val API_URL = "https://raw.githubusercontent.com/SkbkonturMobile/mobile-test-droid/master/json";
+    companion object {
+        const val API_URL = "https://raw.githubusercontent.com/SkbkonturMobile/mobile-test-droid/master/json/"
+    }
 
     fun provideApi(retrofit: Retrofit, apiClassName: Class<Api>): Api {
 
@@ -19,7 +21,7 @@ open abstract class BaseModule<Api> {
 
     fun provideApiRetrofit(gson: Gson, okHttpClient: OkHttpClient): Retrofit {
 
-        var retrofit = Retrofit.Builder()
+        val retrofit = Retrofit.Builder()
                 .baseUrl(API_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.createWithScheduler(Schedulers.io()))

@@ -1,4 +1,4 @@
-package ru.vshumilov.agroholdingapp.modules.core.injection
+package ru.shumilov.vladislav.contactstest.modules.core.injection
 
 import javax.inject.Qualifier
 import javax.inject.Scope
