@@ -9,6 +9,4 @@ abstract class BaseInteractor<Model: BaseModel, ModelResponse> constructor(
         private val baseLocalRepository: BaseLocalRepository<Model>) {
 
     abstract fun responseToModel(modelResponse: ModelResponse): Model
-
-    abstract fun onDestroy()
 }

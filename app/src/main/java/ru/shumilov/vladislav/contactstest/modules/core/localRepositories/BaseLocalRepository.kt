@@ -31,12 +31,46 @@ abstract class BaseLocalRepository<Model: BaseModel> constructor(private val bas
         return newModel
     }
 
+    open fun saveList(models: List<Model>): List<Model>? {
+        beforeSaveList(models)
+
+        val newModels = baseDao.saveList(models)
+
+        afterSaveList(newModels)
+
+        return newModels
+    }
+
+    protected fun beforeSaveList(models: List<Model>?) : List<Model>? {
+        if (models == null) {
+            return models
+        }
+
+        for (model: Model in models) {
+            beforeSave(model)
+        }
+
+        return models
+    }
+
     protected fun beforeSave(model: Model?) : Model? {
         return model
     }
 
     protected fun afterSave(model: Model?) : Model? {
         return model
+    }
+
+    protected fun afterSaveList(models: List<Model>?) : List<Model>? {
+        if (models == null || models.isEmpty()) {
+            return models
+        }
+
+        for (model: Model in models) {
+            afterSave(model)
+        }
+
+        return models
     }
 
     fun getById(modelId: String?) : Model? {

@@ -10,6 +10,9 @@ import ru.shumilov.vladislav.contactstest.R
 import ru.shumilov.vladislav.contactstest.app
 import ru.simpls.brs2.commons.functions.safe
 import javax.inject.Inject
+import android.arch.lifecycle.Observer
+import kotlinx.android.synthetic.main.contacts_list.*
+import android.support.design.widget.Snackbar
 
 
 class ContactsListFragment @Inject constructor(): Fragment() {
@@ -20,7 +23,10 @@ class ContactsListFragment @Inject constructor(): Fragment() {
         }
     }
 
-    private lateinit var viewModel: ContactsListViewModel
+    @Inject
+    protected lateinit var contactsListViewModelFactory: ContactsListViewModelFactory
+
+    protected lateinit var viewModel: ContactsListViewModel
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.contacts_list, container, false)
@@ -34,7 +40,12 @@ class ContactsListFragment @Inject constructor(): Fragment() {
         safe {
             app()?.createContactComponent()?.inject(this)
 
-            viewModel = ViewModelProviders.of(this).get(ContactsListViewModel::class.java)
+            viewModel = ViewModelProviders.of(this, contactsListViewModelFactory)
+                    .get(ContactsListViewModel::class.java)
+
+            setListeners()
+
+            viewModel.loadContacts()
         }
     }
 
@@ -44,5 +55,42 @@ class ContactsListFragment @Inject constructor(): Fragment() {
         }
 
         super.onDestroyView()
+    }
+
+    private fun setListeners() {
+        viewModel.getProgressState().observe(this, Observer { mustShowProgress ->
+            mustShowProgress?.let {
+                if (mustShowProgress) {
+                    showProgress()
+                } else {
+                    hideProgress()
+                }
+            }
+        })
+
+        viewModel.getContactsErrorState().observe(this, Observer { mustShowContactsError ->
+            mustShowContactsError?.let {
+                if (mustShowContactsError) {
+                    showContactsError()
+                }
+            }
+        })
+
+
+        viewModel.getContacts().observe(this, Observer { contacts ->
+
+        })
+    }
+
+    private fun showProgress() {
+        progressBar.visibility = View.VISIBLE
+    }
+
+    private fun showContactsError() {
+        Snackbar.make(view!!, getString(R.string.load_contacts_error), Snackbar.LENGTH_LONG).show()
+    }
+
+    private fun hideProgress() {
+        progressBar.visibility = View.GONE
     }
 }

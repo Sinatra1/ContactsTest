@@ -1,6 +1,7 @@
 package ru.shumilov.vladislav.contactstest.core.dao
 
 import io.realm.Realm
+import io.realm.RealmModel
 import io.realm.RealmObject
 import io.realm.Sort
 import ru.shumilov.vladislav.contactstest.core.models.BaseModel
@@ -50,6 +51,47 @@ open class BaseDao<Model : BaseModel> @Inject constructor(
 
             return preparedModel
         }
+    }
+
+    open fun saveList(models: List<Model>?): List<Model>? {
+        if (models == null || models.isEmpty()) {
+            return models
+        }
+
+        beforeSaveList(models)
+
+        var realm: Realm? = null
+
+        try {
+            if (models.first() is RealmObject) {
+                realm = realmProvider.get()
+                realm.executeTransaction {
+                    realm?.insertOrUpdate(models as MutableCollection<out RealmModel>)
+
+                    daoPreferencesHelper.saveLoadMoment(
+                            models.first().javaClass.simpleName, dateHelper.now()
+                    )
+                }
+            }
+        } catch (e: RuntimeException) {
+            Timber.e(this.javaClass.simpleName, e.message)
+        } finally {
+            realm?.close()
+
+            return models
+        }
+    }
+
+    protected fun beforeSaveList(models: List<Model>?): List<Model>? {
+        if (models == null) {
+            return models
+        }
+
+        for (model: Model in models) {
+            beforeSave(model)
+        }
+
+        return models
     }
 
     protected fun beforeSave(model: Model?): Model? {

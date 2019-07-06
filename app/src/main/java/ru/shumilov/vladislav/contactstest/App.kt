@@ -5,6 +5,7 @@ import android.app.Application
 import android.support.v4.app.Fragment
 import com.facebook.stetho.Stetho
 import com.uphyca.stetho_realm.RealmInspectorModulesProvider
+import io.realm.Realm
 import ru.shumilov.vladislav.contactstest.modules.contacts.injection.ContactComponent
 import ru.shumilov.vladislav.contactstest.modules.contacts.injection.ContactModule
 import ru.shumilov.vladislav.contactstest.modules.core.injection.AppComponent
@@ -41,6 +42,7 @@ class App : Application() {
     }
 
     private fun initRealm() {
+        Realm.init(this)
         Stetho.initialize(
                 Stetho.newInitializerBuilder(this)
                         .enableDumpapp(Stetho.defaultDumperPluginsProvider(this))
