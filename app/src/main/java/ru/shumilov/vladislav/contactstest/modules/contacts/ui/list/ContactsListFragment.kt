@@ -13,6 +13,8 @@ import javax.inject.Inject
 import android.arch.lifecycle.Observer
 import kotlinx.android.synthetic.main.contacts_list.*
 import android.support.design.widget.Snackbar
+import android.support.v7.widget.LinearLayoutManager
+import ru.shumilov.vladislav.contactstest.modules.contacts.models.Contact
 
 
 class ContactsListFragment @Inject constructor(): Fragment() {
@@ -27,9 +29,14 @@ class ContactsListFragment @Inject constructor(): Fragment() {
     protected lateinit var contactsListViewModelFactory: ContactsListViewModelFactory
 
     protected lateinit var viewModel: ContactsListViewModel
+    protected lateinit var contactsListAdapter: ContactsListAdapter
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.contacts_list, container, false)
+
+        contactsListAdapter = ContactsListAdapter()
+        contactsListRecyclerView.layoutManager = LinearLayoutManager(context)
+        contactsListRecyclerView.adapter = contactsListAdapter
 
         return view
     }
@@ -92,5 +99,9 @@ class ContactsListFragment @Inject constructor(): Fragment() {
 
     private fun hideProgress() {
         progressBar.visibility = View.GONE
+    }
+
+    private fun showContacts(contacts: List<Contact>) {
+        contactsListAdapter.addItems(contacts)
     }
 }

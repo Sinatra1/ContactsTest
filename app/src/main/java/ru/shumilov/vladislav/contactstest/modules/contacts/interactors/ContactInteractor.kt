@@ -36,16 +36,6 @@ class ContactInteractor @Inject constructor(
         }
     }
 
-    override fun responseToModel(contact: Contact): Contact {
-        contact.phone = phoneHelper.formattedPhoneToOnlyNumbers(contact.phone)
-
-        if (contact.educationPeriod?.id == null) {
-            contact.educationPeriod?.id = contact.id
-        }
-
-        return contact
-    }
-
     protected fun onGetListFromServer(
             firstContacts: ArrayList<Contact>,
             secondContacts: List<Contact>,
@@ -61,5 +51,15 @@ class ContactInteractor @Inject constructor(
         contactLocalRepository.saveList(firstContacts)
 
         return firstContacts
+    }
+
+    override fun responseToModel(contact: Contact): Contact {
+        contact.phone = phoneHelper.formattedPhoneToOnlyNumbers(contact.phone)
+
+        if (contact.educationPeriod?.id == null) {
+            contact.educationPeriod?.id = contact.id
+        }
+
+        return contact
     }
 }
