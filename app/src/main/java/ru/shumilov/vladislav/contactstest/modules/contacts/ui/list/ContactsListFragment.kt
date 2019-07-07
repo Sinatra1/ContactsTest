@@ -1,23 +1,24 @@
 package ru.shumilov.vladislav.contactstest.modules.contacts.ui.list
 
+import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
+import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
+import android.support.v4.widget.SwipeRefreshLayout
+import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import kotlinx.android.synthetic.main.contacts_list.*
 import ru.shumilov.vladislav.contactstest.R
 import ru.shumilov.vladislav.contactstest.app
+import ru.shumilov.vladislav.contactstest.modules.contacts.models.ContactShort
 import ru.simpls.brs2.commons.functions.safe
 import javax.inject.Inject
-import android.arch.lifecycle.Observer
-import kotlinx.android.synthetic.main.contacts_list.*
-import android.support.design.widget.Snackbar
-import android.support.v7.widget.LinearLayoutManager
-import ru.shumilov.vladislav.contactstest.modules.contacts.models.Contact
 
 
-class ContactsListFragment @Inject constructor(): Fragment() {
+class ContactsListFragment @Inject constructor(): Fragment(), SwipeRefreshLayout.OnRefreshListener {
 
     companion object {
         fun newInstance(): ContactsListFragment {
@@ -34,15 +35,15 @@ class ContactsListFragment @Inject constructor(): Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.contacts_list, container, false)
 
-        contactsListAdapter = ContactsListAdapter()
-        contactsListRecyclerView.layoutManager = LinearLayoutManager(context)
-        contactsListRecyclerView.adapter = contactsListAdapter
-
         return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        contactsListAdapter = ContactsListAdapter()
+        contactsListRecyclerView.layoutManager = LinearLayoutManager(context)
+        contactsListRecyclerView.adapter = contactsListAdapter
 
         safe {
             app()?.createContactComponent()?.inject(this)
@@ -56,12 +57,22 @@ class ContactsListFragment @Inject constructor(): Fragment() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+
+        swipeRefreshLayout.setOnRefreshListener(this)
+    }
+
     override fun onDestroyView() {
         safe {
             app()?.clearContactComponent()
         }
 
         super.onDestroyView()
+    }
+
+    override fun onRefresh() {
+        viewModel.loadContacts()
     }
 
     private fun setListeners() {
@@ -85,7 +96,7 @@ class ContactsListFragment @Inject constructor(): Fragment() {
 
 
         viewModel.getContacts().observe(this, Observer { contacts ->
-
+            showContacts(contacts)
         })
     }
 
@@ -99,9 +110,13 @@ class ContactsListFragment @Inject constructor(): Fragment() {
 
     private fun hideProgress() {
         progressBar.visibility = View.GONE
+
+        if (swipeRefreshLayout.isRefreshing) {
+            swipeRefreshLayout.isRefreshing = false
+        }
     }
 
-    private fun showContacts(contacts: List<Contact>) {
+    private fun showContacts(contacts: List<ContactShort>?) {
         contactsListAdapter.addItems(contacts)
     }
 }

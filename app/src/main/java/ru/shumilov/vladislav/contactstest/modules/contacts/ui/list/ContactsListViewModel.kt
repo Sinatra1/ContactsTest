@@ -3,12 +3,9 @@ package ru.shumilov.vladislav.contactstest.modules.contacts.ui.list
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
-import android.arch.lifecycle.ViewModelProvider
 import ru.shumilov.vladislav.contactstest.modules.contacts.interactors.ContactInteractor
-import ru.shumilov.vladislav.contactstest.modules.contacts.models.Contact
-import ru.shumilov.vladislav.contactstest.modules.core.injection.ApplicationScope
+import ru.shumilov.vladislav.contactstest.modules.contacts.models.ContactShort
 import rx.subscriptions.CompositeSubscription
-import javax.inject.Inject
 
 
 class ContactsListViewModel constructor(
@@ -16,7 +13,7 @@ class ContactsListViewModel constructor(
 
     private val mustShowProgress = MutableLiveData<Boolean>().apply { true }
     private val mustShowContactsError = MutableLiveData<Boolean>().apply { false }
-    private val contacts = MutableLiveData<List<Contact>>().apply { emptyList<Contact>() }
+    private val contacts = MutableLiveData<List<ContactShort>>().apply { emptyList<ContactShort>() }
     private val compositeSubscription = CompositeSubscription()
 
     fun loadContacts() {
@@ -39,11 +36,11 @@ class ContactsListViewModel constructor(
         return mustShowContactsError
     }
 
-    fun getContacts(): LiveData<List<Contact>> {
+    fun getContacts(): LiveData<List<ContactShort>> {
         return contacts
     }
 
-    private fun onLoadedContactsSuccess(contacts: List<Contact>) {
+    private fun onLoadedContactsSuccess(contacts: List<ContactShort>) {
         mustShowProgress.postValue(false)
         mustShowContactsError.postValue(false)
         this.contacts.postValue(contacts)
