@@ -11,6 +11,7 @@ import ru.shumilov.vladislav.contactstest.modules.contacts.injection.ContactModu
 import ru.shumilov.vladislav.contactstest.modules.core.injection.AppComponent
 import ru.shumilov.vladislav.contactstest.modules.core.injection.modules.AppModule
 import ru.shumilov.vladislav.contactstest.modules.core.injection.DaggerAppComponent
+import ru.simpls.brs2.commons.modules.core.preferenses.DaoPreferencesHelper
 import kotlin.properties.Delegates
 
 fun Activity.app() = this.application as App
@@ -18,8 +19,9 @@ fun Fragment.app() = this.activity?.app()
 
 class App : Application() {
 
-    var appComponent : AppComponent by Delegates.notNull()
-    var contactComponent : ContactComponent? = null
+    var appComponent: AppComponent by Delegates.notNull()
+    var contactComponent: ContactComponent? = null
+    private lateinit var daoPreferencesHelper: DaoPreferencesHelper
 
     override fun onCreate() {
         super.onCreate()
@@ -27,9 +29,11 @@ class App : Application() {
         appComponent = DaggerAppComponent.builder().appModule(AppModule(this)).build()
 
         initRealm()
+
+        saveApplicationLoadMoment()
     }
 
-    fun createContactComponent() : ContactComponent {
+    fun createContactComponent(): ContactComponent {
         if (contactComponent == null) {
             contactComponent = appComponent.plusContactComponent(ContactModule())
         }
@@ -47,5 +51,18 @@ class App : Application() {
                 Stetho.newInitializerBuilder(this)
                         .enableDumpapp(Stetho.defaultDumperPluginsProvider(this))
                         .enableWebKitInspector(RealmInspectorModulesProvider.builder(this).build()).build())
+    }
+
+    private fun saveApplicationLoadMoment() {
+        daoPreferencesHelper = DaoPreferencesHelper(this)
+
+        if (daoPreferencesHelper.getApplicationLoadedMoment() == 0L) {
+            daoPreferencesHelper.setFirstTimeApplicationLoaded(true)
+        } else {
+            daoPreferencesHelper.setFirstTimeApplicationLoaded(false)
+        }
+
+        daoPreferencesHelper = DaoPreferencesHelper(this)
+        daoPreferencesHelper.saveApplicationLoadMoment()
     }
 }

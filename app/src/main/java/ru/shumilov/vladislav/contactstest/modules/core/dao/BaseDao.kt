@@ -39,9 +39,7 @@ open class BaseDao<Model : BaseModel> @Inject constructor(
                 realm.executeTransaction {
                     realm?.insertOrUpdate(preparedModel)
 
-                    daoPreferencesHelper.saveLoadMoment(
-                            preparedModel.javaClass.simpleName, dateHelper.now()
-                    )
+                    daoPreferencesHelper.saveLoadMoment(preparedModel.javaClass.simpleName)
                 }
             }
         } catch (e: RuntimeException) {
@@ -68,9 +66,7 @@ open class BaseDao<Model : BaseModel> @Inject constructor(
                 realm.executeTransaction {
                     realm?.insertOrUpdate(models as MutableCollection<out RealmModel>)
 
-                    daoPreferencesHelper.saveLoadMoment(
-                            models.first().javaClass.simpleName, dateHelper.now()
-                    )
+                    daoPreferencesHelper.saveLoadMoment(models.first().javaClass.simpleName)
                 }
             }
         } catch (e: RuntimeException) {
@@ -129,7 +125,9 @@ open class BaseDao<Model : BaseModel> @Inject constructor(
         return model
     }
 
-    fun getList(whereList: HashMap<String, String>? = null, sortByList: HashMap<String, String>? = null): List<Model>? =
+    fun getList(
+            whereList: HashMap<String, String>? = null,
+            sortByList: HashMap<String, String>? = null): List<Model>? =
             with(realmProvider.get()) {
                 use { realm ->
                     var query = realm.where((getEmptyModel() as RealmObject).javaClass).equalTo("is_deleted", false)
@@ -200,7 +198,7 @@ open class BaseDao<Model : BaseModel> @Inject constructor(
 
                         realm.insertOrUpdate(model)
 
-                        daoPreferencesHelper.saveLoadMoment((getEmptyModel() as RealmObject).javaClass.simpleName, dateHelper.now())
+                        daoPreferencesHelper.saveLoadMoment((getEmptyModel() as RealmObject).javaClass.simpleName)
                     }
                 }
             }

@@ -7,7 +7,7 @@ import java.util.*
 
 abstract class BaseLocalRepository<Model: BaseModel> constructor(private val baseDao: BaseDao<Model>) {
 
-    fun getList(query: String? = null, whereList : HashMap<String, String> = HashMap<String, String>()) : List<Model>? {
+    fun getList(query: String? = null, whereList : HashMap<String, String> = HashMap()) : List<Model>? {
         if (query != null) {
             if (!TextUtils.isEmpty(query)) {
                 whereList[getDefaultQueryField()] = query

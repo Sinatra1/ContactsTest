@@ -3,9 +3,9 @@ package ru.shumilov.vladislav.contactstest.modules.contacts.ui.list
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
+import io.reactivex.disposables.CompositeDisposable
 import ru.shumilov.vladislav.contactstest.modules.contacts.interactors.ContactInteractor
 import ru.shumilov.vladislav.contactstest.modules.contacts.models.ContactShort
-import rx.subscriptions.CompositeSubscription
 
 
 class ContactsListViewModel constructor(
@@ -14,14 +14,24 @@ class ContactsListViewModel constructor(
     private val mustShowProgress = MutableLiveData<Boolean>().apply { true }
     private val mustShowContactsError = MutableLiveData<Boolean>().apply { false }
     private val contacts = MutableLiveData<List<ContactShort>>().apply { emptyList<ContactShort>() }
-    private val compositeSubscription = CompositeSubscription()
+    private val compositeDisposable = CompositeDisposable()
 
     fun loadContacts() {
         mustShowProgress.value = true
 
+        val request = contactInteractor.getList()
+
+        compositeDisposable.add(request.subscribe({ contacts ->
+            onLoadedContactsSuccess(contacts)
+        }, { error ->
+            onLoadedContactsError()
+        }))
+    }
+
+    fun loadContactsForce() {
         val request = contactInteractor.getListFromServer()
 
-        compositeSubscription.add(request.subscribe({ contacts ->
+        compositeDisposable.add(request.subscribe({ contacts ->
             onLoadedContactsSuccess(contacts)
         }, { error ->
             onLoadedContactsError()
@@ -52,7 +62,7 @@ class ContactsListViewModel constructor(
     }
 
     override fun onCleared() {
-        compositeSubscription.unsubscribe()
+        compositeDisposable.clear()
 
         super.onCleared()
     }

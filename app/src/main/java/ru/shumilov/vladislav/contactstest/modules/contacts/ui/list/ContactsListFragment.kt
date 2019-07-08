@@ -72,7 +72,9 @@ class ContactsListFragment @Inject constructor(): Fragment(), SwipeRefreshLayout
     }
 
     override fun onRefresh() {
-        viewModel.loadContacts()
+        safe {
+            viewModel.loadContactsForce()
+        }
     }
 
     private fun setListeners() {
