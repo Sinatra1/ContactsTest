@@ -38,8 +38,6 @@ class ContactInteractor @Inject constructor(
     private val phoneHelper = PhoneHelper()
     private val dateHelper = DateHelper()
     private val subject = PublishSubject.create<String>()
-    private val handler = Handler(Looper.getMainLooper())
-
 
     fun getList(): Observable<List<ContactShort>> {
         if (mustGetListFromServer()) {
@@ -60,13 +58,24 @@ class ContactInteractor @Inject constructor(
                 contactApi.getList(THIRD_SOURCE_NUMBER).onErrorReturn {
                     emptyList()
                 },
-                Function3<List<Contact>, List<Contact>, List<Contact>, List<ContactShort>>
+                Function3<List<Contact>, List<Contact>, List<Contact>, List<Contact>>
                 zip@{ firstContacts,
                       secondContacts,
                       thirdContacts: List<Contact> ->
 
                     return@zip onGetListFromServer(firstContacts as ArrayList<Contact>, secondContacts, thirdContacts)
-                })
+                }).subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.single())
+                .map {
+                    contacts ->
+                    for (contact: Contact in contacts) {
+                        responseToModel(contact)
+                    }
+
+                    contactLocalRepository.saveList(contacts)
+
+                    return@map modelsToShortList(contacts)
+                }
     }
 
     fun getListFromLocalByInput(query: String) {
@@ -84,8 +93,8 @@ class ContactInteractor @Inject constructor(
         })
 
         return request
-                .subscribeOn(AndroidSchedulers.mainThread())
-                .observeOn(Schedulers.io())
+                .subscribeOn(Schedulers.single())
+                .observeOn(Schedulers.single())
                 .map { contacts ->
                     return@map modelsToShortList(contacts)
                 }
@@ -94,20 +103,12 @@ class ContactInteractor @Inject constructor(
     protected fun onGetListFromServer(
             firstContacts: ArrayList<Contact>,
             secondContacts: List<Contact>,
-            thirdContacts: List<Contact>): List<ContactShort> {
+            thirdContacts: List<Contact>): List<Contact> {
 
         firstContacts.addAll(secondContacts)
         firstContacts.addAll(thirdContacts)
 
-        for (contact: Contact in firstContacts) {
-            responseToModel(contact)
-        }
-
-        handler.post {
-            contactLocalRepository.saveList(firstContacts)
-        }
-
-        return modelsToShortList(firstContacts)
+        return firstContacts
     }
 
     override fun responseToModel(contact: Contact): Contact {
