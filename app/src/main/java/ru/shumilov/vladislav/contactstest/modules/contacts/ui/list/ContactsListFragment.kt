@@ -7,15 +7,17 @@ import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.LinearLayoutManager
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.support.v7.widget.SearchView
+import android.view.*
 import kotlinx.android.synthetic.main.contacts_list.*
 import ru.shumilov.vladislav.contactstest.R
 import ru.shumilov.vladislav.contactstest.app
 import ru.shumilov.vladislav.contactstest.modules.contacts.models.ContactShort
 import ru.simpls.brs2.commons.functions.safe
 import javax.inject.Inject
+import io.reactivex.subjects.PublishSubject
+
+
 
 
 class ContactsListFragment @Inject constructor(): Fragment(), SwipeRefreshLayout.OnRefreshListener {
@@ -31,6 +33,13 @@ class ContactsListFragment @Inject constructor(): Fragment(), SwipeRefreshLayout
 
     protected lateinit var viewModel: ContactsListViewModel
     protected lateinit var contactsListAdapter: ContactsListAdapter
+    protected lateinit var searchView: SearchView
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        setHasOptionsMenu(true)
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.contacts_list, container, false)
@@ -55,6 +64,34 @@ class ContactsListFragment @Inject constructor(): Fragment(), SwipeRefreshLayout
 
             viewModel.loadContacts()
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+
+        inflater.inflate(R.menu.contacts_list_menu, menu)
+
+        initSearchListener(menu)
+    }
+
+    private fun initSearchListener(menu: Menu) {
+        searchView = menu.findItem(R.id.searchView).actionView as SearchView
+
+        val subject = PublishSubject.create<String>()
+
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextChange(query: String): Boolean {
+                subject.onNext(query)
+                return true
+            }
+
+            override fun onQueryTextSubmit(query: String): Boolean {
+                subject.onNext(query)
+                return true
+            }
+        })
+
+        viewModel.searchContacts(subject)
     }
 
     override fun onResume() {

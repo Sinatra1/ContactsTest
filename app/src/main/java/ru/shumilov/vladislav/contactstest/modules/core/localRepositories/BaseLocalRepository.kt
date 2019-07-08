@@ -10,7 +10,7 @@ abstract class BaseLocalRepository<Model: BaseModel> constructor(private val bas
     fun getList(query: String? = null, whereList : HashMap<String, String> = HashMap()) : List<Model>? {
         if (query != null) {
             if (!TextUtils.isEmpty(query)) {
-                whereList[getDefaultQueryField()] = query
+                whereList[getDefaultQueryField()] = query.toLowerCase()
             }
         }
 
@@ -41,7 +41,7 @@ abstract class BaseLocalRepository<Model: BaseModel> constructor(private val bas
         return newModels
     }
 
-    protected fun beforeSaveList(models: List<Model>?) : List<Model>? {
+    open protected fun beforeSaveList(models: List<Model>?) : List<Model>? {
         if (models == null) {
             return models
         }
@@ -53,15 +53,15 @@ abstract class BaseLocalRepository<Model: BaseModel> constructor(private val bas
         return models
     }
 
-    protected fun beforeSave(model: Model?) : Model? {
+    open protected fun beforeSave(model: Model?) : Model? {
         return model
     }
 
-    protected fun afterSave(model: Model?) : Model? {
+    open protected fun afterSave(model: Model?) : Model? {
         return model
     }
 
-    protected fun afterSaveList(models: List<Model>?) : List<Model>? {
+    open protected fun afterSaveList(models: List<Model>?) : List<Model>? {
         if (models == null || models.isEmpty()) {
             return models
         }

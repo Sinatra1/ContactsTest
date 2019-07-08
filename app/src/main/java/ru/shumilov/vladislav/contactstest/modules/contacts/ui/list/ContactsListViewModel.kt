@@ -4,12 +4,18 @@ import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.subjects.PublishSubject
 import ru.shumilov.vladislav.contactstest.modules.contacts.interactors.ContactInteractor
 import ru.shumilov.vladislav.contactstest.modules.contacts.models.ContactShort
+import java.util.concurrent.TimeUnit
 
 
 class ContactsListViewModel constructor(
         private val contactInteractor: ContactInteractor) : ViewModel() {
+
+    companion object {
+        const val INPUT_FREQUENCY_MILLIS = 1000L //1 sec
+    }
 
     private val mustShowProgress = MutableLiveData<Boolean>().apply { true }
     private val mustShowContactsError = MutableLiveData<Boolean>().apply { false }
@@ -23,6 +29,7 @@ class ContactsListViewModel constructor(
         }
 
         inProcess = true
+
         mustShowProgress.value = true
 
         val request = contactInteractor.getList()
@@ -42,6 +49,20 @@ class ContactsListViewModel constructor(
         inProcess = true
 
         val request = contactInteractor.getListFromServer()
+
+        compositeDisposable.add(request.subscribe({ contacts ->
+            onLoadedContactsSuccess(contacts)
+        }, { error ->
+            onLoadedContactsError()
+        }))
+    }
+
+    fun searchContacts(querySubject: PublishSubject<String>) {
+        val request = querySubject.debounce(INPUT_FREQUENCY_MILLIS, TimeUnit.MILLISECONDS)
+                .switchMap {
+                    query->
+                    return@switchMap contactInteractor.getList(query)
+                }
 
         compositeDisposable.add(request.subscribe({ contacts ->
             onLoadedContactsSuccess(contacts)

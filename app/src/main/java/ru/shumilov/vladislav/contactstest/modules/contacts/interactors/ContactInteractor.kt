@@ -1,10 +1,8 @@
 package ru.shumilov.vladislav.contactstest.modules.contacts.interactors
 
-import android.os.Handler
-import android.os.Looper
+import android.text.TextUtils
 import io.reactivex.Observable
 import io.reactivex.ObservableOnSubscribe
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.Function3
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
@@ -15,7 +13,6 @@ import ru.shumilov.vladislav.contactstest.modules.contacts.localRepositories.Con
 import ru.shumilov.vladislav.contactstest.modules.contacts.models.Contact
 import ru.shumilov.vladislav.contactstest.modules.contacts.models.ContactShort
 import ru.shumilov.vladislav.contactstest.modules.core.injection.ApplicationScope
-import ru.shumilov.vladislav.contactstest.modules.core.preferences.PhoneHelper
 import ru.simpls.brs2.commons.modules.core.preferenses.DaoPreferencesHelper
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -32,22 +29,19 @@ class ContactInteractor @Inject constructor(
         const val SECOND_SOURCE_NUMBER = "02"
         const val THIRD_SOURCE_NUMBER = "03"
         const val UPDATE_FREQUENCY_MILLIS = 60 * 1000 //1 min
-        const val INPUT_FREQUENCY_MILLIS = 1000L //1 sec
     }
 
-    private val phoneHelper = PhoneHelper()
     private val dateHelper = DateHelper()
-    private val subject = PublishSubject.create<String>()
 
-    fun getList(): Observable<List<ContactShort>> {
+    fun getList(query: String? = null): Observable<List<ContactShort>> {
         if (mustGetListFromServer()) {
-            return getListFromServer()
+            return getListFromServer(query)
         }
 
-        return getListFromLocal()
+        return getListFromLocal(query)
     }
 
-    fun getListFromServer(): Observable<List<ContactShort>> {
+    fun getListFromServer(query: String? = null): Observable<List<ContactShort>> {
         return Observable.zip(
                 contactApi.getList(FIRST_SOURCE_NUMBER).onErrorReturn {
                     emptyList()
@@ -67,21 +61,21 @@ class ContactInteractor @Inject constructor(
                 }).subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.single())
                 .map {
-                    contacts ->
-                    for (contact: Contact in contacts) {
-                        responseToModel(contact)
+                    reponseContacts ->
+
+                    var contacts = emptyList<Contact>()
+
+                    if (reponseContacts != null) {
+                        contacts = reponseContacts
                     }
 
-                    contactLocalRepository.saveList(contacts)
+                    contacts = contactLocalRepository.saveList(contacts)!!
+
+                    if (!TextUtils.isEmpty(query)) {
+                        contacts = contactLocalRepository.getList(query)!!
+                    }
 
                     return@map modelsToShortList(contacts)
-                }
-    }
-
-    fun getListFromLocalByInput(query: String) {
-        subject.debounce(INPUT_FREQUENCY_MILLIS, TimeUnit.MILLISECONDS)
-                .switchMap {
-                    return@switchMap getListFromLocal(query)
                 }
     }
 
@@ -109,16 +103,6 @@ class ContactInteractor @Inject constructor(
         firstContacts.addAll(thirdContacts)
 
         return firstContacts
-    }
-
-    override fun responseToModel(contact: Contact): Contact {
-        contact.phone = phoneHelper.formattedPhoneToOnlyNumbers(contact.phone)
-
-        if (contact.educationPeriod?.id == null) {
-            contact.educationPeriod?.id = contact.id
-        }
-
-        return contact
     }
 
     protected fun modelsToShortList(contacts: List<Contact>): List<ContactShort> {
@@ -159,5 +143,9 @@ class ContactInteractor @Inject constructor(
                 daoPreferencesHelper.isFirstTimeApplicationLoaded()
 
         return result
+    }
+
+    override fun responseToModel(modelResponse: Contact): Contact {
+        return modelResponse
     }
 }
