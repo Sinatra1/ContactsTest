@@ -2,6 +2,8 @@ package ru.shumilov.vladislav.contactstest
 
 import android.app.Activity
 import android.app.Application
+import android.os.Handler
+import android.os.Looper
 import android.support.v4.app.Fragment
 import com.facebook.stetho.Stetho
 import com.uphyca.stetho_realm.RealmInspectorModulesProvider
@@ -22,6 +24,7 @@ class App : Application() {
     var appComponent: AppComponent by Delegates.notNull()
     var contactComponent: ContactComponent? = null
     private lateinit var daoPreferencesHelper: DaoPreferencesHelper
+    private val handler = Handler(Looper.getMainLooper())
 
     override fun onCreate() {
         super.onCreate()
@@ -56,13 +59,10 @@ class App : Application() {
     private fun saveApplicationLoadMoment() {
         daoPreferencesHelper = DaoPreferencesHelper(this)
 
-        if (daoPreferencesHelper.getApplicationLoadedMoment() == 0L) {
+        if (daoPreferencesHelper.getContactsLoadedMoment() == 0L) {
             daoPreferencesHelper.setFirstTimeApplicationLoaded(true)
         } else {
             daoPreferencesHelper.setFirstTimeApplicationLoaded(false)
         }
-
-        daoPreferencesHelper = DaoPreferencesHelper(this)
-        daoPreferencesHelper.saveApplicationLoadMoment()
     }
 }

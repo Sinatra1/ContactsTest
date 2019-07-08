@@ -15,8 +15,14 @@ class ContactsListViewModel constructor(
     private val mustShowContactsError = MutableLiveData<Boolean>().apply { false }
     private val contacts = MutableLiveData<List<ContactShort>>().apply { emptyList<ContactShort>() }
     private val compositeDisposable = CompositeDisposable()
+    private var inProcess = false
 
     fun loadContacts() {
+        if (inProcess) {
+            return
+        }
+
+        inProcess = true
         mustShowProgress.value = true
 
         val request = contactInteractor.getList()
@@ -29,6 +35,12 @@ class ContactsListViewModel constructor(
     }
 
     fun loadContactsForce() {
+        if (inProcess) {
+            return
+        }
+
+        inProcess = true
+
         val request = contactInteractor.getListFromServer()
 
         compositeDisposable.add(request.subscribe({ contacts ->
@@ -51,12 +63,14 @@ class ContactsListViewModel constructor(
     }
 
     private fun onLoadedContactsSuccess(contacts: List<ContactShort>) {
+        inProcess = false
         mustShowProgress.postValue(false)
         mustShowContactsError.postValue(false)
         this.contacts.postValue(contacts)
     }
 
     private fun onLoadedContactsError() {
+        inProcess = false
         mustShowProgress.postValue(false)
         mustShowContactsError.postValue(true)
     }

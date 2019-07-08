@@ -1,5 +1,7 @@
 package ru.shumilov.vladislav.contactstest.modules.contacts.dao
 
+import android.os.Handler
+import android.os.Looper
 import io.realm.Realm
 import ru.shumilov.vladislav.contactstest.core.dao.BaseDao
 import ru.shumilov.vladislav.contactstest.modules.contacts.models.Contact
@@ -15,5 +17,15 @@ class ContactDao @Inject constructor(
 
     override fun getEmptyModel(): Contact? {
         return Contact()
+    }
+
+    override fun saveList(models: List<Contact>?): List<Contact>? {
+        val contatcs =  super.saveList(models)
+
+        if (daoPreferencesHelper.getContactsLoadedMoment() != 0L) {
+            daoPreferencesHelper.setFirstTimeApplicationLoaded(false)
+        }
+
+        return contatcs
     }
 }

@@ -1,7 +1,10 @@
 package ru.shumilov.vladislav.contactstest.modules.contacts.interactors
 
+import android.os.Handler
+import android.os.Looper
 import io.reactivex.Observable
 import io.reactivex.ObservableOnSubscribe
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.Function3
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
@@ -35,6 +38,7 @@ class ContactInteractor @Inject constructor(
     private val phoneHelper = PhoneHelper()
     private val dateHelper = DateHelper()
     private val subject = PublishSubject.create<String>()
+    private val handler = Handler(Looper.getMainLooper())
 
 
     fun getList(): Observable<List<ContactShort>> {
@@ -47,9 +51,15 @@ class ContactInteractor @Inject constructor(
 
     fun getListFromServer(): Observable<List<ContactShort>> {
         return Observable.zip(
-                contactApi.getList(FIRST_SOURCE_NUMBER),
-                contactApi.getList(SECOND_SOURCE_NUMBER),
-                contactApi.getList(THIRD_SOURCE_NUMBER),
+                contactApi.getList(FIRST_SOURCE_NUMBER).onErrorReturn {
+                    emptyList()
+                },
+                contactApi.getList(SECOND_SOURCE_NUMBER).onErrorReturn {
+                    emptyList()
+                },
+                contactApi.getList(THIRD_SOURCE_NUMBER).onErrorReturn {
+                    emptyList()
+                },
                 Function3<List<Contact>, List<Contact>, List<Contact>, List<ContactShort>>
                 zip@{ firstContacts,
                       secondContacts,
@@ -68,10 +78,14 @@ class ContactInteractor @Inject constructor(
 
     fun getListFromLocal(query: String? = null): Observable<List<ContactShort>> {
         val request = Observable.create(ObservableOnSubscribe<List<Contact>> { emitter ->
-            emitter.onNext(contactLocalRepository.getList(query)!!)
+            emitter.onNext(
+                    contactLocalRepository.getList(query)!!
+            )
         })
 
-        return request.subscribeOn(Schedulers.io())
+        return request
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .observeOn(Schedulers.io())
                 .map { contacts ->
                     return@map modelsToShortList(contacts)
                 }
@@ -89,7 +103,9 @@ class ContactInteractor @Inject constructor(
             responseToModel(contact)
         }
 
-        contactLocalRepository.saveList(firstContacts)
+        handler.post {
+            contactLocalRepository.saveList(firstContacts)
+        }
 
         return modelsToShortList(firstContacts)
     }
@@ -132,10 +148,15 @@ class ContactInteractor @Inject constructor(
     }
 
     protected fun mustGetListFromServer(): Boolean {
-        val applicationLoadMomentMillis = daoPreferencesHelper.getApplicationLoadedMoment()
+        val applicationLoadMomentMillis = daoPreferencesHelper.getContactsLoadedMoment()
         var nowMillis = dateHelper.now()
 
-        return (nowMillis - applicationLoadMomentMillis) > UPDATE_FREQUENCY_MILLIS ||
+        val result = (
+                (nowMillis - applicationLoadMomentMillis) > UPDATE_FREQUENCY_MILLIS &&
+                        !daoPreferencesHelper.isFirstTimeApplicationLoaded()
+                ) ||
                 daoPreferencesHelper.isFirstTimeApplicationLoaded()
+
+        return result
     }
 }

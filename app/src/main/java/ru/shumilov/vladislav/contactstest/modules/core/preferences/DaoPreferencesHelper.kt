@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import ru.shumilov.vladislav.contactstest.App
+import ru.shumilov.vladislav.contactstest.modules.contacts.models.Contact
 import ru.shumilov.vladislav.contactstest.modules.core.injection.ApplicationContext
 import ru.shumilov.vladislav.contactstest.modules.core.injection.ApplicationScope
 import javax.inject.Inject
@@ -24,12 +25,12 @@ open class DaoPreferencesHelper {
         sharedPreferences = context.getSharedPreferences(PREF_FILE_NAME, Context.MODE_PRIVATE)
     }
 
-    fun saveApplicationLoadMoment() {
-        saveLoadMoment(APPLICATION)
+    fun saveContactsLoadMoment() {
+        saveLoadMoment(Contact().javaClass.simpleName)
     }
 
-    fun getApplicationLoadedMoment(): Long {
-        return getSavedMoment(APPLICATION)
+    fun getContactsLoadedMoment(): Long {
+        return getSavedMoment(Contact().javaClass.simpleName)
     }
 
     fun isFirstTimeApplicationLoaded(): Boolean {

@@ -1,11 +1,11 @@
 package ru.shumilov.vladislav.contactstest.modules.login.injection
 
 import com.google.gson.Gson
+import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
+import io.reactivex.schedulers.Schedulers
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
-import rx.schedulers.Schedulers
 
 open abstract class BaseModule<Api> {
 
@@ -24,7 +24,7 @@ open abstract class BaseModule<Api> {
         val retrofit = Retrofit.Builder()
                 .baseUrl(API_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson))
-                .addCallAdapterFactory(RxJavaCallAdapterFactory.createWithScheduler(Schedulers.io()))
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
                 .callFactory(okHttpClient)
                 .client(okHttpClient)
                 .build()
