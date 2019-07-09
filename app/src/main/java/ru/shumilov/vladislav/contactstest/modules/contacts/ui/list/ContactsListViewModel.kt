@@ -41,14 +41,14 @@ class ContactsListViewModel constructor(
         }))
     }
 
-    fun loadContactsForce() {
+    fun loadContactsForce(query: String? = null) {
         if (inProcess) {
             return
         }
 
         inProcess = true
 
-        val request = contactInteractor.getListFromServer()
+        val request = contactInteractor.getListFromServer(query)
 
         compositeDisposable.add(request.subscribe({ contacts ->
             onLoadedContactsSuccess(contacts)
@@ -61,7 +61,7 @@ class ContactsListViewModel constructor(
         val request = querySubject.debounce(INPUT_FREQUENCY_MILLIS, TimeUnit.MILLISECONDS)
                 .switchMap {
                     query->
-                    return@switchMap contactInteractor.getList(query)
+                    return@switchMap contactInteractor.getListFromLocal(query)
                 }
 
         compositeDisposable.add(request.subscribe({ contacts ->

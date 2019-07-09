@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.SearchView
+import android.text.TextUtils
 import android.view.*
 import kotlinx.android.synthetic.main.contacts_list.*
 import ru.shumilov.vladislav.contactstest.R
@@ -23,9 +24,7 @@ import io.reactivex.subjects.PublishSubject
 class ContactsListFragment @Inject constructor(): Fragment(), SwipeRefreshLayout.OnRefreshListener {
 
     companion object {
-        fun newInstance(): ContactsListFragment {
-            return ContactsListFragment()
-        }
+        private const val QUERY_KEY = "query_key"
     }
 
     @Inject
@@ -34,6 +33,7 @@ class ContactsListFragment @Inject constructor(): Fragment(), SwipeRefreshLayout
     protected lateinit var viewModel: ContactsListViewModel
     protected lateinit var contactsListAdapter: ContactsListAdapter
     protected lateinit var searchView: SearchView
+    protected var query: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,7 +62,35 @@ class ContactsListFragment @Inject constructor(): Fragment(), SwipeRefreshLayout
 
             setListeners()
 
-            viewModel.loadContacts()
+            if (savedInstanceState == null) {
+                viewModel.loadContacts()
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        swipeRefreshLayout.setOnRefreshListener(this)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+
+        outState.putString(QUERY_KEY, query)
+    }
+
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+
+        if (savedInstanceState == null) {
+            return
+        }
+
+        val query = savedInstanceState.getString(QUERY_KEY)
+
+        if (!TextUtils.isEmpty(query)) {
+            this.query = query
         }
     }
 
@@ -77,27 +105,28 @@ class ContactsListFragment @Inject constructor(): Fragment(), SwipeRefreshLayout
     private fun initSearchListener(menu: Menu) {
         searchView = menu.findItem(R.id.searchView).actionView as SearchView
 
+        if (!TextUtils.isEmpty(query)) {
+            searchView.setQuery(query, false)
+            searchView.isIconified = false
+        }
+
         val subject = PublishSubject.create<String>()
 
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextChange(query: String): Boolean {
+                this@ContactsListFragment.query = query
                 subject.onNext(query)
                 return true
             }
 
             override fun onQueryTextSubmit(query: String): Boolean {
+                this@ContactsListFragment.query = query
                 subject.onNext(query)
                 return true
             }
         })
 
         viewModel.searchContacts(subject)
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        swipeRefreshLayout.setOnRefreshListener(this)
     }
 
     override fun onDestroyView() {
@@ -110,7 +139,7 @@ class ContactsListFragment @Inject constructor(): Fragment(), SwipeRefreshLayout
 
     override fun onRefresh() {
         safe {
-            viewModel.loadContactsForce()
+            viewModel.loadContactsForce(query)
         }
     }
 
