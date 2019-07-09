@@ -1,10 +1,12 @@
 package ru.shumilov.vladislav.contactstest.modules.contacts.localRepositories
 
+import android.text.TextUtils
 import ru.shumilov.vladislav.contactstest.core.localRepositories.BaseLocalRepository
 import ru.shumilov.vladislav.contactstest.modules.contacts.dao.ContactDao
 import ru.shumilov.vladislav.contactstest.modules.contacts.models.Contact
 import ru.shumilov.vladislav.contactstest.modules.core.injection.ApplicationScope
 import ru.shumilov.vladislav.contactstest.modules.core.preferences.PhoneHelper
+import java.util.HashMap
 import javax.inject.Inject
 
 @ApplicationScope
@@ -12,6 +14,23 @@ class ContactLocalRepository @Inject constructor(
         private val contactDao: ContactDao) : BaseLocalRepository<Contact>(contactDao) {
 
     protected val phoneHelper = PhoneHelper()
+
+    override fun getList(query: String?, whereList: HashMap<String, String>): List<Contact>? {
+        val realmQuery = contactDao.getListQuery()
+
+        if (!TextUtils.isEmpty(query)) {
+            val phone = phoneHelper.formattedPhoneToOnlyNumbers(query)
+
+            if (!TextUtils.isEmpty(phone)) {
+                realmQuery.contains("phone", phone)
+                realmQuery.or()
+            }
+
+            realmQuery.contains("name_lowercase", query!!.toLowerCase())
+        }
+
+        return contactDao.getList(whereList, null, realmQuery)
+    }
 
     override fun beforeSave(contact: Contact?): Contact? {
         if (contact == null) {

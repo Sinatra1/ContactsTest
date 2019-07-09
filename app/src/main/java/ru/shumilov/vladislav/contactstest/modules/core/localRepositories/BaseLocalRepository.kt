@@ -7,17 +7,15 @@ import java.util.*
 
 abstract class BaseLocalRepository<Model: BaseModel> constructor(private val baseDao: BaseDao<Model>) {
 
-    fun getList(query: String? = null, whereList : HashMap<String, String> = HashMap()) : List<Model>? {
-        if (query != null) {
-            if (!TextUtils.isEmpty(query)) {
-                whereList[getDefaultQueryField()] = query.toLowerCase()
-            }
+    open fun getList(query: String? = null, whereList : HashMap<String, String> = HashMap()) : List<Model>? {
+        if (!TextUtils.isEmpty(query)) {
+            whereList[getDefaultQueryField()] = query!!.toLowerCase()
         }
 
         return baseDao.getList(whereList)
     }
 
-    protected fun getDefaultQueryField(): String {
+    open protected fun getDefaultQueryField(): String {
         return "name_lowercase"
     }
 
@@ -73,7 +71,7 @@ abstract class BaseLocalRepository<Model: BaseModel> constructor(private val bas
         return models
     }
 
-    fun getById(modelId: String?) : Model? {
+    open fun getById(modelId: String?) : Model? {
         if (modelId == null) {
             return null
         }
@@ -81,7 +79,7 @@ abstract class BaseLocalRepository<Model: BaseModel> constructor(private val bas
         return baseDao.getById(modelId)
     }
 
-    fun delete(modelId: String?): Boolean {
+    open fun delete(modelId: String?): Boolean {
         if (modelId == null) {
             return false
         }
@@ -95,7 +93,7 @@ abstract class BaseLocalRepository<Model: BaseModel> constructor(private val bas
         return baseDao.delete(model)
     }
 
-    fun deleteAll() = baseDao.deleteAll()
+    open fun deleteAll() = baseDao.deleteAll()
 
-    fun clearDataBase() = baseDao.clearDataBase()
+    open fun clearDataBase() = baseDao.clearDataBase()
 }

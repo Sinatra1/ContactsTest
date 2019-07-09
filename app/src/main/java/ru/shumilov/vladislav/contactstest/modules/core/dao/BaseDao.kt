@@ -2,10 +2,7 @@ package ru.shumilov.vladislav.contactstest.core.dao
 
 import android.os.Handler
 import android.os.Looper
-import io.realm.Realm
-import io.realm.RealmModel
-import io.realm.RealmObject
-import io.realm.Sort
+import io.realm.*
 import ru.shumilov.vladislav.contactstest.core.models.BaseModel
 import ru.shumilov.vladislav.contactstest.core.preferences.DateHelper
 import ru.simpls.brs2.commons.modules.core.preferenses.DaoPreferencesHelper
@@ -75,7 +72,7 @@ open class BaseDao<Model : BaseModel> @Inject constructor(
         }
     }
 
-    protected fun beforeSaveList(models: List<Model>?): List<Model>? {
+    open protected fun beforeSaveList(models: List<Model>?): List<Model>? {
         if (models == null) {
             return models
         }
@@ -87,7 +84,7 @@ open class BaseDao<Model : BaseModel> @Inject constructor(
         return models
     }
 
-    protected fun beforeSave(model: Model?): Model? {
+    open protected fun beforeSave(model: Model?): Model? {
         if (model == null) {
             return model
         }
@@ -103,7 +100,7 @@ open class BaseDao<Model : BaseModel> @Inject constructor(
         return model
     }
 
-    fun getById(modelId: String?): Model? {
+    open fun getById(modelId: String?): Model? {
         var model: Model? = null
 
         val realm = realmProvider.get()
@@ -118,28 +115,18 @@ open class BaseDao<Model : BaseModel> @Inject constructor(
         return model
     }
 
-    fun getList(
+    open fun getList(
             whereList: HashMap<String, String>? = null,
-            sortByList: HashMap<String, String>? = null): List<Model>? {
+            sortByList: HashMap<String, String>? = null, queryDefault: RealmQuery<RealmObject>? = null): List<Model>? {
         val realm = realmProvider.get()
-        var query = realm.where((getEmptyModel() as RealmObject).javaClass).equalTo("is_deleted", false)
+
         var sortKey = getSortKey()
         var sortValue = Sort.ASCENDING
 
-        if (whereList != null && whereList?.size > 0) {
-            for (entry in whereList) {
-                var value = entry.value
+        var query = queryDefault
 
-                if (value == TRUE || value == FALSE) {
-                    query.equalTo(entry.key, value.toBoolean())
-                } else if (value == NOT_NULL) {
-                    query.isNotNull(entry.key)
-                } else if (value == IS_NULL) {
-                    query.isNull(entry.key)
-                } else {
-                    query.contains(entry.key, value)
-                }
-            }
+        if (query == null) {
+            query = getListQuery(whereList)
         }
 
         if (sortByList != null && sortByList?.size > 0) {
@@ -159,13 +146,36 @@ open class BaseDao<Model : BaseModel> @Inject constructor(
         return realm.copyFromRealm(query.findAll().sort(sortKey, sortValue)) as List<Model>?
     }
 
-    fun getCount(): Long {
+    open fun getListQuery(whereList: HashMap<String, String>? = null): RealmQuery<RealmObject> {
+        val realm = realmProvider.get()
+        var query = realm.where((getEmptyModel() as RealmObject).javaClass).equalTo("is_deleted", false)
+
+        if (whereList != null && whereList?.size > 0) {
+            for (entry in whereList) {
+                var value = entry.value
+
+                if (value == TRUE || value == FALSE) {
+                    query.equalTo(entry.key, value.toBoolean())
+                } else if (value == NOT_NULL) {
+                    query.isNotNull(entry.key)
+                } else if (value == IS_NULL) {
+                    query.isNull(entry.key)
+                } else {
+                    query.contains(entry.key, value)
+                }
+            }
+        }
+
+        return query
+    }
+
+    open fun getCount(): Long {
         val realm = realmProvider.get()
 
         return realm.where((getEmptyModel() as RealmObject).javaClass).count()
     }
 
-    fun deleteAll(): Boolean {
+    open fun deleteAll(): Boolean {
         val models = getList()
 
         if (models == null || models.isEmpty()) {
@@ -179,7 +189,7 @@ open class BaseDao<Model : BaseModel> @Inject constructor(
         return true
     }
 
-    fun delete(model: Model): Boolean {
+    open fun delete(model: Model): Boolean {
         val realm = realmProvider.get()
 
         realm.executeTransaction {
@@ -196,7 +206,7 @@ open class BaseDao<Model : BaseModel> @Inject constructor(
         return true
     }
 
-    fun clear() {
+    open fun clear() {
         val realm = realmProvider.get()
 
         realm.executeTransaction {
@@ -205,7 +215,7 @@ open class BaseDao<Model : BaseModel> @Inject constructor(
         }
     }
 
-    fun clearDataBase() {
+    open fun clearDataBase() {
         val realm = realmProvider.get()
 
         realm.executeTransaction {
@@ -214,7 +224,7 @@ open class BaseDao<Model : BaseModel> @Inject constructor(
         }
     }
 
-    fun clearById(modelId: String?) {
+    open fun clearById(modelId: String?) {
         if (modelId == null) {
             return
         }
@@ -227,7 +237,7 @@ open class BaseDao<Model : BaseModel> @Inject constructor(
         }
     }
 
-    protected fun generateId(): String {
+    open protected fun generateId(): String {
         var count = getCount()
 
         count = (count + 1) * (-1)
@@ -235,7 +245,7 @@ open class BaseDao<Model : BaseModel> @Inject constructor(
         return count.toString()
     }
 
-    protected fun getSortKey(): String {
+    open protected fun getSortKey(): String {
         return "name"
     }
 
