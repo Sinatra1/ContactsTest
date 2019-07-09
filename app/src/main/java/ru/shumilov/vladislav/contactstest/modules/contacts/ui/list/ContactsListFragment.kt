@@ -10,25 +10,23 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.SearchView
 import android.text.TextUtils
 import android.view.*
+import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.contacts_list.*
 import ru.shumilov.vladislav.contactstest.R
 import ru.shumilov.vladislav.contactstest.app
 import ru.shumilov.vladislav.contactstest.modules.contacts.models.ContactShort
 import ru.simpls.brs2.commons.functions.safe
 import javax.inject.Inject
-import io.reactivex.subjects.PublishSubject
 
 
-
-
-class ContactsListFragment @Inject constructor(): Fragment(), SwipeRefreshLayout.OnRefreshListener {
+class ContactsListFragment @Inject constructor() : Fragment(), SwipeRefreshLayout.OnRefreshListener {
 
     companion object {
         private const val QUERY_KEY = "query_key"
     }
 
     @Inject
-    protected lateinit var contactsListViewModelFactory: ContactsListViewModelFactory
+    protected lateinit var viewModelFactory: ContactsListViewModelFactory
 
     protected lateinit var viewModel: ContactsListViewModel
     protected lateinit var contactsListAdapter: ContactsListAdapter
@@ -42,9 +40,7 @@ class ContactsListFragment @Inject constructor(): Fragment(), SwipeRefreshLayout
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.contacts_list, container, false)
-
-        return view
+        return inflater.inflate(R.layout.contacts_list, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -57,7 +53,7 @@ class ContactsListFragment @Inject constructor(): Fragment(), SwipeRefreshLayout
         safe {
             app()?.createContactComponent()?.inject(this)
 
-            viewModel = ViewModelProviders.of(this, contactsListViewModelFactory)
+            viewModel = ViewModelProviders.of(this, viewModelFactory)
                     .get(ContactsListViewModel::class.java)
 
             setListeners()
