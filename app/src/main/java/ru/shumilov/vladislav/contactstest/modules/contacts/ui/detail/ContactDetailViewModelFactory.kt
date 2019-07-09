@@ -9,8 +9,8 @@ class ContactDetailViewModelFactory @Inject constructor(
         protected val contactInteractor: ContactInteractor) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-        return if (modelClass.isAssignableFrom(ContactDetailViewModelFactory::class.java)) {
-            ContactDetailViewModelFactory(contactInteractor) as T
+        return if (modelClass.isAssignableFrom(ContactDetailViewModel::class.java)) {
+            ContactDetailViewModel(contactInteractor) as T
         } else {
             throw IllegalArgumentException("Unknown ViewModel class")
         }

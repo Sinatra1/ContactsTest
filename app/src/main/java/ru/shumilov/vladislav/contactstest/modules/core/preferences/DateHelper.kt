@@ -2,6 +2,7 @@ package ru.shumilov.vladislav.contactstest.core.preferences
 
 import ru.shumilov.vladislav.contactstest.modules.core.injection.ApplicationScope
 import java.text.SimpleDateFormat
+import java.time.LocalDateTime
 import java.util.*
 
 @ApplicationScope
@@ -9,6 +10,7 @@ open class DateHelper {
 
     companion object {
         const val DB_FORMAT = "yyyy-MM-dd HH:mm:ss"
+        const val HUMAN_DATE_FORMAT = "dd.MM.yyyy"
     }
 
     open fun dateToDbStr(date: Date? = null, formatStr: String? = DB_FORMAT): String {
@@ -72,4 +74,15 @@ open class DateHelper {
         return System.currentTimeMillis();
     }
 
+    open fun utcToHumanDate(utcStr: String?): String {
+        if (utcStr == null) {
+            return ""
+        }
+
+        return SimpleDateFormat(HUMAN_DATE_FORMAT).format(utcStrToDate(utcStr))
+    }
+
+    fun utcStrToDate(utcStr: String): Date {
+        return SimpleDateFormat(DB_FORMAT).parse(utcStr.replace("T", " "))
+    }
 }

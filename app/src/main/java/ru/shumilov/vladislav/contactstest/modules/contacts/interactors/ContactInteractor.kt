@@ -33,6 +33,16 @@ class ContactInteractor @Inject constructor(
 
     private val dateHelper = DateHelper()
 
+    fun getById(id: String): Observable<Contact> {
+        val request = Observable.create(ObservableOnSubscribe<Contact> { emitter ->
+            emitter.onNext(
+                    contactLocalRepository.getById(id)!!
+            )
+        }).subscribeOn(Schedulers.single()).observeOn(Schedulers.single())
+
+        return request
+    }
+
     fun getList(query: String? = null): Observable<List<ContactShort>> {
         if (mustGetListFromServer()) {
             return getListFromServer(query)
@@ -60,8 +70,7 @@ class ContactInteractor @Inject constructor(
                     return@zip onGetListFromServer(firstContacts as ArrayList<Contact>, secondContacts, thirdContacts)
                 }).subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.single())
-                .map {
-                    reponseContacts ->
+                .map { reponseContacts ->
 
                     var contacts = emptyList<Contact>()
 

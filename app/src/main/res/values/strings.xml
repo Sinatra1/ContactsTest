@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">ContactsTest</string>
     <string name="load_contacts_error">There was an error loading contacts</string>
+    <string name="load_contact_error">There was an error loading contact</string>
     <string name="search">Search</string>
+    <string name="contact">Contact</string>
 </resources>

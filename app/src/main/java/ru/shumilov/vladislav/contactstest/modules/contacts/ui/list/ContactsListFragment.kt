@@ -10,17 +10,22 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.SearchView
 import android.text.TextUtils
 import android.view.*
+import androidx.navigation.NavController
+import androidx.navigation.Navigation
 import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.contacts_list.*
 import ru.shumilov.vladislav.contactstest.R
 import ru.shumilov.vladislav.contactstest.app
 import ru.shumilov.vladislav.contactstest.modules.contacts.models.ContactShort
+import ru.shumilov.vladislav.contactstest.modules.contacts.ui.detail.ContactDetailFragment
+import ru.shumilov.vladislav.contactstest.modules.core.ui.RecyclerViewListener
 import ru.simpls.brs2.commons.functions.safe
 import javax.inject.Inject
 
 
-class ContactsListFragment @Inject constructor() : Fragment(), SwipeRefreshLayout.OnRefreshListener {
 
+
+class ContactsListFragment @Inject constructor() : Fragment(), SwipeRefreshLayout.OnRefreshListener, RecyclerViewListener<ContactShort> {
     companion object {
         private const val QUERY_KEY = "query_key"
     }
@@ -28,27 +33,20 @@ class ContactsListFragment @Inject constructor() : Fragment(), SwipeRefreshLayou
     @Inject
     protected lateinit var viewModelFactory: ContactsListViewModelFactory
 
-    protected lateinit var viewModel: ContactsListViewModel
-    protected lateinit var contactsListAdapter: ContactsListAdapter
-    protected lateinit var searchView: SearchView
-    protected var query: String? = null
+    private lateinit var viewModel: ContactsListViewModel
+    private lateinit var contactsListAdapter: ContactsListAdapter
+    private lateinit var searchView: SearchView
+    private var query: String? = null
+    private val navController: NavController by lazy {
+        Navigation.findNavController(view!!)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setHasOptionsMenu(true)
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.contacts_list, container, false)
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
 
         contactsListAdapter = ContactsListAdapter()
-        contactsListRecyclerView.layoutManager = LinearLayoutManager(context)
-        contactsListRecyclerView.adapter = contactsListAdapter
 
         safe {
             app()?.createContactComponent()?.inject(this)
@@ -64,10 +62,22 @@ class ContactsListFragment @Inject constructor() : Fragment(), SwipeRefreshLayou
         }
     }
 
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        return inflater.inflate(R.layout.contacts_list, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        contactsListRecyclerView.layoutManager = LinearLayoutManager(context)
+        contactsListRecyclerView.adapter = contactsListAdapter
+    }
+
     override fun onResume() {
         super.onResume()
 
         swipeRefreshLayout.setOnRefreshListener(this)
+        contactsListAdapter.setClickListener(this)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -182,5 +192,21 @@ class ContactsListFragment @Inject constructor() : Fragment(), SwipeRefreshLayou
 
     private fun showContacts(contacts: List<ContactShort>?) {
         contactsListAdapter.addItems(contacts)
+    }
+
+    override fun onItemClick(contactShort: ContactShort, position: Int) {
+        showContactDetail(contactShort.id)
+    }
+
+    private fun showContactDetail(contactId: String?) {
+        if (contactId == null) {
+            return
+        }
+
+        navController.navigate(R.id.contactDetailFragment, ContactDetailFragment.getBundle(contactId))
+    }
+
+    override fun onItemAdd(item: ContactShort, position: Int) {
+
     }
 }

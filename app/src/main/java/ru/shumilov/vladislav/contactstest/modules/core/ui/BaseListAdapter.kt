@@ -10,7 +10,6 @@ abstract class BaseListAdapter<Model> : RecyclerView.Adapter<BaseViewHolder<Mode
     protected var items: ArrayList<Model> = ArrayList()
 
     protected var listener: RecyclerViewListener<Model>? = null
-        set(listener) {this.listener = listener}
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<Model> {
         val layoutInflater = LayoutInflater.from(parent.context)
@@ -26,6 +25,7 @@ abstract class BaseListAdapter<Model> : RecyclerView.Adapter<BaseViewHolder<Mode
         val item = items[position]
 
         holder.bind(item)
+        holder.setListener(this, items[position], position)
     }
 
     override fun getItemCount(): Int {
@@ -56,5 +56,9 @@ abstract class BaseListAdapter<Model> : RecyclerView.Adapter<BaseViewHolder<Mode
 
     override fun onItemClick(item: Model, position: Int) {
         listener?.onItemClick(items[position], position)
+    }
+
+    fun setClickListener(listener: RecyclerViewListener<Model>) {
+        this.listener = listener
     }
 }
