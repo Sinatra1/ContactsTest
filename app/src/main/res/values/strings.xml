@@ -4,4 +4,7 @@
     <string name="load_contact_error">There was an error loading contact</string>
     <string name="search">Search</string>
     <string name="contact">Contact</string>
+    <string name="call_phone_rationale_description">Request permission for a call is needed to dial a phone number</string>
+    <string name="agree">Agree</string>
+    <string name="call_phone_permission_not_granted_message">You can set the right to make a phone call in the application settings</string>
 </resources>

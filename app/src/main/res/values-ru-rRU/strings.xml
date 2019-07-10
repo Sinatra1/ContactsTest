@@ -5,4 +5,7 @@
     <string name="load_contact_error">Произошла ошибка загрузки контакта</string>
     <string name="search">Поиск</string>
     <string name="contact">Контакт</string>
+    <string name="call_phone_rationale_description">Запрос разрешения на звонок нужен для набора телефонного номера</string>
+    <string name="agree">Понятно</string>
+    <string name="call_phone_permission_not_granted_message">Можете выставить права на совершение звонка в настройках приложений</string>
 </resources>

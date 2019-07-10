@@ -2,18 +2,21 @@ package ru.shumilov.vladislav.contactstest.modules.contacts.ui.detail
 
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
+import android.os.Build
 import android.os.Bundle
+import android.support.annotation.RequiresApi
 import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import kotlinx.android.synthetic.main.contact_detail.*
 import ru.shumilov.vladislav.contactstest.R
 import ru.shumilov.vladislav.contactstest.app
 import ru.shumilov.vladislav.contactstest.modules.contacts.models.Contact
-import ru.shumilov.vladislav.contactstest.modules.contacts.models.ContactShort
+import ru.shumilov.vladislav.contactstest.modules.core.preferences.PhoneHelper
 import ru.simpls.brs2.commons.functions.safe
 import javax.inject.Inject
 
@@ -33,7 +36,9 @@ class ContactDetailFragment : Fragment() {
     @Inject
     protected lateinit var viewModelFactory: ContactDetailViewModelFactory
 
-    protected lateinit var viewModel: ContactDetailViewModel
+    protected val phoneHelper = PhoneHelper()
+    private lateinit var viewModel: ContactDetailViewModel
+    private lateinit var contact: Contact
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.contact_detail, container, false)
@@ -83,6 +88,10 @@ class ContactDetailFragment : Fragment() {
         viewModel.getContact().observe(this, Observer { contact ->
             showContact(contact)
         })
+
+        (phone as TextView).setOnClickListener(View.OnClickListener {
+            phoneHelper.dialPhoneNumber(contact.phone, this)
+        })
     }
 
     private fun showContactError() {
@@ -94,10 +103,25 @@ class ContactDetailFragment : Fragment() {
             return
         }
 
+        this.contact = contact
+
         name.text = contact.name
-        phone.text = contact.phone
+        phone.text = phoneHelper.onlyNumberToFormattedPhone(contact.phone)
         temperament.text = contact.temperament
         educationPeriod.text = contact.educationPeriod?.toString()
         biography.text = contact.biography
+    }
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode!!, permissions!!, grantResults!!)
+
+        phoneHelper.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
+
+    override fun onStop() {
+        phoneHelper.onDestroy()
+
+        super.onStop()
     }
 }
