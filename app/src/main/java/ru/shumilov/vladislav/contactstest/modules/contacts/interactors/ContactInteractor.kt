@@ -5,20 +5,18 @@ import io.reactivex.Observable
 import io.reactivex.ObservableOnSubscribe
 import io.reactivex.functions.Function3
 import io.reactivex.schedulers.Schedulers
-import io.reactivex.subjects.PublishSubject
 import ru.shumilov.vladislav.contactstest.core.interactors.BaseInteractor
 import ru.shumilov.vladislav.contactstest.core.preferences.DateHelper
 import ru.shumilov.vladislav.contactstest.modules.contacts.api.ContactApi
 import ru.shumilov.vladislav.contactstest.modules.contacts.localRepositories.ContactLocalRepository
 import ru.shumilov.vladislav.contactstest.modules.contacts.models.Contact
 import ru.shumilov.vladislav.contactstest.modules.contacts.models.ContactShort
-import ru.shumilov.vladislav.contactstest.modules.core.injection.ApplicationScope
+import ru.shumilov.vladislav.contactstest.modules.core.injection.ContactScope
 import ru.simpls.brs2.commons.modules.core.preferenses.DaoPreferencesHelper
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 
-@ApplicationScope
+@ContactScope
 class ContactInteractor @Inject constructor(
         private val contactApi: ContactApi,
         private val contactLocalRepository: ContactLocalRepository,

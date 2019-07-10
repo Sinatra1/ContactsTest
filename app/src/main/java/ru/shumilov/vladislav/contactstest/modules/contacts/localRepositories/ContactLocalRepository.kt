@@ -4,12 +4,12 @@ import android.text.TextUtils
 import ru.shumilov.vladislav.contactstest.core.localRepositories.BaseLocalRepository
 import ru.shumilov.vladislav.contactstest.modules.contacts.dao.ContactDao
 import ru.shumilov.vladislav.contactstest.modules.contacts.models.Contact
-import ru.shumilov.vladislav.contactstest.modules.core.injection.ApplicationScope
+import ru.shumilov.vladislav.contactstest.modules.core.injection.ContactScope
 import ru.shumilov.vladislav.contactstest.modules.core.preferences.PhoneHelper
-import java.util.HashMap
+import java.util.*
 import javax.inject.Inject
 
-@ApplicationScope
+@ContactScope
 class ContactLocalRepository @Inject constructor(
         private val contactDao: ContactDao) : BaseLocalRepository<Contact>(contactDao) {
 

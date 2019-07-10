@@ -4,10 +4,10 @@ import dagger.Subcomponent
 import ru.shumilov.vladislav.contactstest.modules.contacts.api.ContactApi
 import ru.shumilov.vladislav.contactstest.modules.contacts.ui.detail.ContactDetailFragment
 import ru.shumilov.vladislav.contactstest.modules.contacts.ui.list.ContactsListFragment
-import ru.shumilov.vladislav.contactstest.modules.core.injection.ApplicationScope
+import ru.shumilov.vladislav.contactstest.modules.core.injection.ContactScope
 
 @Subcomponent(modules = [ContactModule::class])
-@ApplicationScope
+@ContactScope
 interface ContactComponent {
 
     fun contactApi() : ContactApi

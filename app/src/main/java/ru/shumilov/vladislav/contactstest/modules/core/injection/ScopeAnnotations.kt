@@ -18,3 +18,7 @@ annotation class ApplicationScope
 @Scope
 @kotlin.annotation.Retention(AnnotationRetention.RUNTIME)
 annotation class ActivityScope
+
+@Scope
+@kotlin.annotation.Retention(AnnotationRetention.RUNTIME)
+annotation class ContactScope
