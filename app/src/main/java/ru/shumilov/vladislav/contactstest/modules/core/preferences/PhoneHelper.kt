@@ -39,7 +39,7 @@ class PhoneHelper {
         return phone.replace(Regex(ONLY_NUMBERS), "")
     }
 
-    fun onlyNumberToFormattedPhone(phone: String?): String? {
+    fun onlyNumbersToFormattedPhone(phone: String?): String? {
         if (phone == null) {
             return null
         }

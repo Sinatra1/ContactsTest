@@ -20,7 +20,7 @@ class ContactsListHolder @Inject constructor(
 
     override fun setDataToView() {
         nameView.text = item?.name
-        phoneView.text = phoneHelper.onlyNumberToFormattedPhone(item?.phone)
+        phoneView.text = phoneHelper.onlyNumbersToFormattedPhone(item?.phone)
         heightView.text = item?.height.toString()
     }
 

@@ -108,7 +108,7 @@ class ContactDetailFragment : Fragment() {
         this.contact = contact
 
         name.text = contact.name
-        phone.text = phoneHelper.onlyNumberToFormattedPhone(contact.phone)
+        phone.text = phoneHelper.onlyNumbersToFormattedPhone(contact.phone)
         temperament.text = textHelper.getTextWithFirstUpper(contact.temperament)
         educationPeriod.text = contact.educationPeriod?.toString()
         biography.text = contact.biography

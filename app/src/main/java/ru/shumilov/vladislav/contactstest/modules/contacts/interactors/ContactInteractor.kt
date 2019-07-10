@@ -76,6 +76,7 @@ class ContactInteractor @Inject constructor(
                         contacts = reponseContacts
                     }
 
+                    contactLocalRepository.clearDataBase()
                     contacts = contactLocalRepository.saveList(contacts)!!
 
                     if (!TextUtils.isEmpty(query)) {

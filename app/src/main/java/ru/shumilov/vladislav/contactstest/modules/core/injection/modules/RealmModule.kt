@@ -28,6 +28,11 @@ class RealmModule {
         }
 
         val realmConfig = RealmConfiguration.Builder()
+                .compactOnLaunch { totalBytes, usedBytes ->
+                    // Compact if the file is over 500KB in size and less than 20% 'used'
+                    val minSize = (500 * 1024).toLong()
+                    return@compactOnLaunch totalBytes > minSize && usedBytes / totalBytes.toDouble() < 0.2
+                }
                 .name(REALM_DB_NAME)
                 .schemaVersion(REALM_SCHEMA_VERSION)
 
