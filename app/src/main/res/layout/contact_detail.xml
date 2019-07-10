@@ -12,6 +12,7 @@
         android:layout_height="wrap_content"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        style="@style/TextAppearance.AppCompat.Title"
         tools:text="Name"/>
 
     <TextView
@@ -20,7 +21,7 @@
         android:layout_height="wrap_content"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/name"
-        android:layout_marginTop="@dimen/default_gap"
+        style="@style/MyLink"
         tools:text="Phone"/>
 
     <TextView
@@ -29,7 +30,7 @@
         android:layout_height="wrap_content"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/phone"
-        android:layout_marginTop="@dimen/default_gap"
+        style="@style/MyHintText"
         tools:text="Temperament"/>
 
     <TextView
@@ -39,6 +40,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/temperament"
         android:layout_marginTop="@dimen/default_gap"
+        style="@style/MyHintText"
         tools:text="EducationPeriod"/>
 
     <TextView
@@ -48,6 +50,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/educationPeriod"
         android:layout_marginTop="@dimen/default_gap"
+        style="@style/MySmallText"
         tools:text="Biography"/>
 
 </android.support.constraint.ConstraintLayout>

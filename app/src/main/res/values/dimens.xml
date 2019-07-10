@@ -2,4 +2,5 @@
 <resources>
     <dimen name="fragment_horizontal_margin">16dp</dimen>
     <dimen name="default_gap">8dp</dimen>
+    <dimen name="abc_text_size_small_material">12sp</dimen>
 </resources>

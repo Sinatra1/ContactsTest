@@ -13,6 +13,7 @@
         android:layout_height="wrap_content"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        style="@style/TextAppearance.AppCompat.Medium"
         tools:text="Name"/>
 
     <TextView

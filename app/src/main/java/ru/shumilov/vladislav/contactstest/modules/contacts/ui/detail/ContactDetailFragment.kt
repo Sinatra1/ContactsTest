@@ -17,6 +17,7 @@ import ru.shumilov.vladislav.contactstest.R
 import ru.shumilov.vladislav.contactstest.app
 import ru.shumilov.vladislav.contactstest.modules.contacts.models.Contact
 import ru.shumilov.vladislav.contactstest.modules.core.preferences.PhoneHelper
+import ru.shumilov.vladislav.contactstest.modules.core.preferences.TextHelper
 import ru.simpls.brs2.commons.functions.safe
 import javax.inject.Inject
 
@@ -36,7 +37,8 @@ class ContactDetailFragment : Fragment() {
     @Inject
     protected lateinit var viewModelFactory: ContactDetailViewModelFactory
 
-    protected val phoneHelper = PhoneHelper()
+    private val phoneHelper = PhoneHelper()
+    private val textHelper = TextHelper()
     private lateinit var viewModel: ContactDetailViewModel
     private lateinit var contact: Contact
 
@@ -107,7 +109,7 @@ class ContactDetailFragment : Fragment() {
 
         name.text = contact.name
         phone.text = phoneHelper.onlyNumberToFormattedPhone(contact.phone)
-        temperament.text = contact.temperament
+        temperament.text = textHelper.getTextWithFirstUpper(contact.temperament)
         educationPeriod.text = contact.educationPeriod?.toString()
         biography.text = contact.biography
     }

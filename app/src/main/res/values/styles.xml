@@ -6,6 +6,26 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:textColor">@color/textColor</item>
+        <item name="android:textColorSecondary">@color/textColor</item>
+        <item name="android:textColorHint">@color/textColorHint</item>
+        <item name="android:textColorLink">@color/textColorLink</item>
+
+    </style>
+
+    <style name="MyLink" parent="@style/TextAppearance.AppCompat">
+        <item name="android:paddingTop">@dimen/default_gap</item>
+        <item name="android:paddingBottom">@dimen/default_gap</item>
+        <item name="android:textColor">@color/textColorLink</item>
+    </style>
+
+    <style name="MySmallText" parent="Base.TextAppearance.AppCompat.Small">
+        <item name="android:textSize">@dimen/abc_text_size_small_material</item>
+        <item name="android:textColor">@color/textColor</item>
+    </style>
+
+    <style name="MyHintText" parent="MySmallText">
+        <item name="android:textColor">@color/textColorHint</item>
     </style>
 
 </resources>

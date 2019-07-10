@@ -21,8 +21,7 @@ import ru.shumilov.vladislav.contactstest.modules.contacts.ui.detail.ContactDeta
 import ru.shumilov.vladislav.contactstest.modules.core.ui.RecyclerViewListener
 import ru.simpls.brs2.commons.functions.safe
 import javax.inject.Inject
-
-
+import android.support.v7.widget.DividerItemDecoration
 
 
 class ContactsListFragment @Inject constructor() : Fragment(), SwipeRefreshLayout.OnRefreshListener, RecyclerViewListener<ContactShort> {
@@ -71,6 +70,7 @@ class ContactsListFragment @Inject constructor() : Fragment(), SwipeRefreshLayou
 
         contactsListRecyclerView.layoutManager = LinearLayoutManager(context)
         contactsListRecyclerView.adapter = contactsListAdapter
+        contactsListRecyclerView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
     }
 
     override fun onResume() {
