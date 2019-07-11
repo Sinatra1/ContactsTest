@@ -36,6 +36,7 @@ class ContactsListFragment @Inject constructor() : Fragment(), SwipeRefreshLayou
     private lateinit var contactsListAdapter: ContactsListAdapter
     private lateinit var searchView: SearchView
     private var query: String? = null
+    private var inProcess: Boolean? = false
     private val navController: NavController by lazy {
         Navigation.findNavController(view!!)
     }
@@ -144,6 +145,11 @@ class ContactsListFragment @Inject constructor() : Fragment(), SwipeRefreshLayou
     }
 
     override fun onRefresh() {
+        if (inProcess == true) {
+            hideRefreshingIcon()
+            return
+        }
+
         safe {
             viewModel.loadContactsForce(query)
         }
@@ -172,6 +178,10 @@ class ContactsListFragment @Inject constructor() : Fragment(), SwipeRefreshLayou
         viewModel.getContacts().observe(this, Observer { contacts ->
             showContacts(contacts)
         })
+
+        viewModel.getInProcessState().observe(this, Observer { inProcess ->
+            this.inProcess = inProcess
+        })
     }
 
     private fun showProgress() {
@@ -185,6 +195,10 @@ class ContactsListFragment @Inject constructor() : Fragment(), SwipeRefreshLayou
     private fun hideProgress() {
         progressBar.visibility = View.GONE
 
+        hideRefreshingIcon()
+    }
+
+    private fun hideRefreshingIcon() {
         if (swipeRefreshLayout.isRefreshing) {
             swipeRefreshLayout.isRefreshing = false
         }
@@ -199,7 +213,7 @@ class ContactsListFragment @Inject constructor() : Fragment(), SwipeRefreshLayou
     }
 
     private fun showContactDetail(contactId: String?) {
-        if (contactId == null) {
+        if (contactId == null || inProcess == true) {
             return
         }
 

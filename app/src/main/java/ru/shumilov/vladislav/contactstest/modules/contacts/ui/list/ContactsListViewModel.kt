@@ -21,14 +21,14 @@ class ContactsListViewModel constructor(
     private val mustShowContactsError = MutableLiveData<Boolean>().apply { false }
     private val contacts = MutableLiveData<List<ContactShort>>().apply { emptyList<ContactShort>() }
     private val compositeDisposable = CompositeDisposable()
-    private var inProcess = false
+    private val inProcess = MutableLiveData<Boolean>().apply { false }
 
     fun loadContacts() {
-        if (inProcess) {
+        if (inProcess.value == true) {
             return
         }
 
-        inProcess = true
+        inProcess.postValue(true)
 
         mustShowProgress.value = true
 
@@ -42,11 +42,11 @@ class ContactsListViewModel constructor(
     }
 
     fun loadContactsForce(query: String? = null) {
-        if (inProcess) {
+        if (inProcess.value == true) {
             return
         }
 
-        inProcess = true
+        inProcess.postValue(true)
 
         val request = contactInteractor.getListFromServer(query)
 
@@ -58,6 +58,12 @@ class ContactsListViewModel constructor(
     }
 
     fun searchContacts(querySubject: PublishSubject<String>) {
+        if (inProcess.value == true) {
+            return
+        }
+
+        inProcess.postValue(true)
+
         val request = querySubject.debounce(INPUT_FREQUENCY_MILLIS, TimeUnit.MILLISECONDS)
                 .switchMap {
                     query->
@@ -83,15 +89,19 @@ class ContactsListViewModel constructor(
         return contacts
     }
 
+    fun getInProcessState(): LiveData<Boolean> {
+        return inProcess
+    }
+
     private fun onLoadedContactsSuccess(contacts: List<ContactShort>) {
-        inProcess = false
+        inProcess.postValue(false)
         mustShowProgress.postValue(false)
         mustShowContactsError.postValue(false)
         this.contacts.postValue(contacts)
     }
 
     private fun onLoadedContactsError() {
-        inProcess = false
+        inProcess.postValue(false)
         mustShowProgress.postValue(false)
         mustShowContactsError.postValue(true)
     }
