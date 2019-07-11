@@ -3,16 +3,19 @@ package ru.shumilov.vladislav.contactstest.modules.core.preferences
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.support.annotation.RequiresApi
+import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
+import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
 import ru.shumilov.vladislav.contactstest.R
 import ru.shumilov.vladislav.contactstest.modules.core.injection.ApplicationScope
@@ -111,7 +114,7 @@ class PhoneHelper {
         if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             doDialPhoneNumber()
         } else {
-            Toast.makeText(fragView?.get()?.context!!, R.string.call_phone_permission_not_granted_message, Toast.LENGTH_LONG).show()
+            Snackbar.make(fragView?.get()?.view!!, R.string.call_phone_permission_not_granted_message, Snackbar.LENGTH_LONG).show()
         }
     }
 

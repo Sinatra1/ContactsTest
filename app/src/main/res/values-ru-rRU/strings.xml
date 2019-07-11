@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Контакты тестовое задание</string>
-    <string name="load_contacts_error">Произошла ошибка загрузки контактов</string>
+    <string name="no_network_connection">Нет подключения к сети</string>
     <string name="load_contact_error">Произошла ошибка загрузки контакта</string>
     <string name="search">Поиск</string>
     <string name="contact">Контакт</string>

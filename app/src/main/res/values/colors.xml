@@ -6,4 +6,5 @@
     <color name="textColor">#e5000000</color>
     <color name="textColorHint">#8a000000</color>
     <color name="textColorLink">#269df7</color>
+    <color name="textColorSnackbar">#ffff</color>
 </resources>

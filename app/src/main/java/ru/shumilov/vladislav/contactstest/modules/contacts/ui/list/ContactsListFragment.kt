@@ -179,7 +179,7 @@ class ContactsListFragment @Inject constructor() : Fragment(), SwipeRefreshLayou
     }
 
     private fun showContactsError() {
-        Snackbar.make(view!!, getString(R.string.load_contacts_error), Snackbar.LENGTH_LONG).show()
+        Snackbar.make(view!!, R.string.no_network_connection, Snackbar.LENGTH_LONG).show()
     }
 
     private fun hideProgress() {
