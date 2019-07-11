@@ -12,6 +12,8 @@ class RealmModule {
     companion object {
         const val REALM_SCHEMA_VERSION: Long = 1
         const val REALM_DB_NAME = "contacts"
+        const val MIN_NOT_COMPACT_DATABASE_SIZE = 500L * 1024L //500KB
+        const val MIN_DATA_PERCENT_IN_DATABASE = 0.2 //20%
     }
 
     @Provides
@@ -30,8 +32,7 @@ class RealmModule {
         val realmConfig = RealmConfiguration.Builder()
                 .compactOnLaunch { totalBytes, usedBytes ->
                     // Compact if the file is over 500KB in size and less than 20% 'used'
-                    val minSize = (500 * 1024).toLong()
-                    return@compactOnLaunch totalBytes > minSize && usedBytes / totalBytes.toDouble() < 0.2
+                    return@compactOnLaunch totalBytes > MIN_NOT_COMPACT_DATABASE_SIZE && usedBytes / totalBytes.toDouble() < MIN_DATA_PERCENT_IN_DATABASE
                 }
                 .name(REALM_DB_NAME)
                 .schemaVersion(REALM_SCHEMA_VERSION)
