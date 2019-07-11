@@ -58,15 +58,10 @@ class ContactsListViewModel constructor(
     }
 
     fun searchContacts(querySubject: PublishSubject<String>) {
-        if (inProcess.value == true) {
-            return
-        }
-
-        inProcess.postValue(true)
-
         val request = querySubject.debounce(INPUT_FREQUENCY_MILLIS, TimeUnit.MILLISECONDS)
                 .switchMap {
                     query->
+                    inProcess.postValue(true)
                     return@switchMap contactInteractor.getListFromLocal(query)
                 }
 
