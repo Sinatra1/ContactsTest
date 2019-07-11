@@ -70,18 +70,7 @@ class ContactInteractor @Inject constructor(
                 .observeOn(Schedulers.single())
                 .map { reponseContacts ->
 
-                    var contacts = emptyList<Contact>()
-
-                    if (reponseContacts != null) {
-                        contacts = reponseContacts
-                    }
-
-                    contactLocalRepository.clearDataBase()
-                    contacts = contactLocalRepository.saveList(contacts)!!
-
-                    if (!TextUtils.isEmpty(query)) {
-                        contacts = contactLocalRepository.getList(query)!!
-                    }
+                    val contacts = saveContacts(reponseContacts, query)
 
                     return@map modelsToShortList(contacts)
                 }
@@ -102,7 +91,7 @@ class ContactInteractor @Inject constructor(
                 }
     }
 
-    protected fun onGetListFromServer(
+    private fun onGetListFromServer(
             firstContacts: ArrayList<Contact>,
             secondContacts: List<Contact>,
             thirdContacts: List<Contact>): List<Contact> {
@@ -113,7 +102,18 @@ class ContactInteractor @Inject constructor(
         return firstContacts
     }
 
-    protected fun modelsToShortList(contacts: List<Contact>): List<ContactShort> {
+    private fun saveContacts(reponseContacts: List<Contact>, query: String? = null): List<Contact> {
+        contactLocalRepository.clearDataBase()
+        var contacts = contactLocalRepository.saveList(reponseContacts)!!
+
+        if (!TextUtils.isEmpty(query)) {
+            contacts = contactLocalRepository.getList(query)!!
+        }
+
+        return contacts
+    }
+
+    private fun modelsToShortList(contacts: List<Contact>): List<ContactShort> {
         val shortContacts = ArrayList<ContactShort>()
 
         for (contact: Contact in contacts) {
@@ -123,7 +123,7 @@ class ContactInteractor @Inject constructor(
         return shortContacts
     }
 
-    protected fun modelToShort(contact: Contact): ContactShort {
+    private fun modelToShort(contact: Contact): ContactShort {
         val contactShort = ContactShort()
 
         contactShort.id = contact.id
@@ -140,7 +140,7 @@ class ContactInteractor @Inject constructor(
         return contactShort
     }
 
-    protected fun mustGetListFromServer(): Boolean {
+    private fun mustGetListFromServer(): Boolean {
         val applicationLoadMomentMillis = daoPreferencesHelper.getContactsLoadedMoment()
         var nowMillis = dateHelper.now()
 

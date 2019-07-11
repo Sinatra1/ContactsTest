@@ -2,7 +2,6 @@ package ru.shumilov.vladislav.contactstest.core.preferences
 
 import ru.shumilov.vladislav.contactstest.modules.core.injection.ApplicationScope
 import java.text.SimpleDateFormat
-import java.time.LocalDateTime
 import java.util.*
 
 @ApplicationScope

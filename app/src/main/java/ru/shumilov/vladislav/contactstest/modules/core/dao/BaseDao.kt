@@ -1,13 +1,11 @@
 package ru.shumilov.vladislav.contactstest.core.dao
 
-import android.os.Handler
-import android.os.Looper
 import io.realm.*
 import ru.shumilov.vladislav.contactstest.core.models.BaseModel
 import ru.shumilov.vladislav.contactstest.core.preferences.DateHelper
-import ru.simpls.brs2.commons.modules.core.preferenses.DaoPreferencesHelper
 import ru.shumilov.vladislav.contactstest.modules.core.injection.ApplicationScope
 import ru.simpls.brs2.commons.functions.safe
+import ru.simpls.brs2.commons.modules.core.preferenses.DaoPreferencesHelper
 import timber.log.Timber
 import java.util.*
 import javax.inject.Inject

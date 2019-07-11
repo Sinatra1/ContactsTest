@@ -39,8 +39,11 @@ class ContactDetailFragment : Fragment() {
 
     private val phoneHelper = PhoneHelper()
     private val textHelper = TextHelper()
-    private lateinit var viewModel: ContactDetailViewModel
     private lateinit var contact: Contact
+    private val viewModel: ContactDetailViewModel by lazy {
+        ViewModelProviders.of(this, viewModelFactory)
+                .get(ContactDetailViewModel::class.java)
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.contact_detail, container, false)
@@ -51,9 +54,6 @@ class ContactDetailFragment : Fragment() {
 
         safe {
             app()?.createContactComponent()?.inject(this)
-
-            viewModel = ViewModelProviders.of(this, viewModelFactory)
-                    .get(ContactDetailViewModel::class.java)
 
             setListeners()
 

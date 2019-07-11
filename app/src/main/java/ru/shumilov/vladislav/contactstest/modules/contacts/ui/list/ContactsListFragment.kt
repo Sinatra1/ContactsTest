@@ -32,11 +32,16 @@ class ContactsListFragment @Inject constructor() : Fragment(), SwipeRefreshLayou
     @Inject
     protected lateinit var viewModelFactory: ContactsListViewModelFactory
 
-    private lateinit var viewModel: ContactsListViewModel
-    private lateinit var contactsListAdapter: ContactsListAdapter
     private lateinit var searchView: SearchView
     private var query: String? = null
     private var inProcess: Boolean? = false
+    private val contactsListAdapter: ContactsListAdapter by lazy {
+        ContactsListAdapter()
+    }
+    private val viewModel: ContactsListViewModel by lazy {
+        ViewModelProviders.of(this, viewModelFactory)
+                .get(ContactsListViewModel::class.java)
+    }
     private val navController: NavController by lazy {
         Navigation.findNavController(view!!)
     }
@@ -46,13 +51,8 @@ class ContactsListFragment @Inject constructor() : Fragment(), SwipeRefreshLayou
 
         setHasOptionsMenu(true)
 
-        contactsListAdapter = ContactsListAdapter()
-
         safe {
             app()?.createContactComponent()?.inject(this)
-
-            viewModel = ViewModelProviders.of(this, viewModelFactory)
-                    .get(ContactsListViewModel::class.java)
 
             setListeners()
 

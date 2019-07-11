@@ -13,17 +13,17 @@ class ContactDao @Inject constructor(
         private val daoPreferencesHelper: DaoPreferencesHelper,
         private val realmProvider: Provider<Realm>) : BaseDao<Contact>(daoPreferencesHelper, realmProvider) {
 
-    override fun getEmptyModel(): Contact? {
+    override fun getEmptyModel(): Contact {
         return Contact()
     }
 
     override fun saveList(models: List<Contact>?): List<Contact>? {
-        val contatcs =  super.saveList(models)
+        val contacts =  super.saveList(models)
 
         if (daoPreferencesHelper.getContactsLoadedMoment() != 0L) {
             daoPreferencesHelper.setFirstTimeApplicationLoaded(false)
         }
 
-        return contatcs
+        return contacts
     }
 }

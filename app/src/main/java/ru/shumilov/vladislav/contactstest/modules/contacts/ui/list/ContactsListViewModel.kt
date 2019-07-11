@@ -36,7 +36,7 @@ class ContactsListViewModel constructor(
 
         compositeDisposable.add(request.subscribe({ contacts ->
             onLoadedContactsSuccess(contacts)
-        }, { error ->
+        }, {
             onLoadedContactsError()
         }))
     }
