@@ -7,4 +7,14 @@
     <string name="call_phone_rationale_description">Request permission for a call is needed to dial a phone number</string>
     <string name="agree">Agree</string>
     <string name="call_phone_permission_not_granted_message">You can set the right to make a phone call in the application settings</string>
+    <string name="not_modified_error">Данные не изменились</string>
+    <string name="bad_request_error">Bad request error</string>
+    <string name="unauthorized_error">Unauthorized error</string>
+    <string name="forbidden_error">Forbidden error</string>
+    <string name="not_found_error">Not found error</string>
+    <string name="method_not_allowed_error">Method not allowed error</string>
+    <string name="conflict_error">Conflict error</string>
+    <string name="unprocessable_error">Unprocessable error</string>
+    <string name="server_error">Server error</string>
+    <string name="unknown_error">Unknown error</string>
 </resources>

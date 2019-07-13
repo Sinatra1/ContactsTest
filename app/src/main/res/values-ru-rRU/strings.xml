@@ -8,4 +8,14 @@
     <string name="call_phone_rationale_description">Запрос разрешения на звонок нужен для набора телефонного номера</string>
     <string name="agree">Понятно</string>
     <string name="call_phone_permission_not_granted_message">Можете выставить права на совершение звонка в настройках приложений</string>
+    <string name="not_modified_error">Not modified error</string>
+    <string name="bad_request_error">Ошибка запроса</string>
+    <string name="unauthorized_error">Ошибка разавторизации</string>
+    <string name="forbidden_error">Вы не авторизованы</string>
+    <string name="not_found_error">Данные не найдены</string>
+    <string name="method_not_allowed_error">Данный метод не доступен</string>
+    <string name="conflict_error">Запрос не может быть выполнен из-за конфликтного обращения к ресурсу</string>
+    <string name="unprocessable_error">Необрабатываемая ошибка</string>
+    <string name="server_error">Внутренняя ошибка сервера</string>
+    <string name="unknown_error">Неизвестная ошибка</string>
 </resources>

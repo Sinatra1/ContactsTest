@@ -3,7 +3,6 @@ package ru.shumilov.vladislav.contactstest.modules.contacts.interactors
 import android.text.TextUtils
 import io.reactivex.Observable
 import io.reactivex.ObservableOnSubscribe
-import io.reactivex.functions.Function3
 import io.reactivex.schedulers.Schedulers
 import ru.shumilov.vladislav.contactstest.core.preferences.DateHelper
 import ru.shumilov.vladislav.contactstest.modules.contacts.localRepositories.ContactLocalRepository
@@ -22,13 +21,14 @@ class ContactInteractor @Inject constructor(
         private val daoPreferencesHelper: DaoPreferencesHelper) {
 
     companion object {
-        const val FIRST_SOURCE_NUMBER = "01"
-        const val SECOND_SOURCE_NUMBER = "02"
-        const val THIRD_SOURCE_NUMBER = "03"
-        const val UPDATE_FREQUENCY_MILLIS = 60 * 1000 //1 min
+        private const val START_SOURCE_NUMBER = 1
+        private const val COUNT_SOURCES = 3
+        private const val UPDATE_FREQUENCY_MILLIS = 60 * 1000 //1 min
     }
 
     private val dateHelper = DateHelper()
+    private var contactsShort: ArrayList<ContactShort> = ArrayList()
+    private var isGettingListFromServer = true
 
     fun getById(id: String): Observable<Contact> {
         val request = Observable.create(ObservableOnSubscribe<Contact> { emitter ->
@@ -41,38 +41,35 @@ class ContactInteractor @Inject constructor(
     }
 
     fun getList(query: String? = null): Observable<List<ContactShort>> {
-        if (mustGetListFromServer()) {
-            return getListFromServer(query)
+        isGettingListFromServer = mustGetListFromServer()
+
+        if (isGettingListFromServer) {
+            return getListFromServer()
         }
 
         return getListFromLocal(query)
     }
 
-    fun getListFromServer(query: String? = null): Observable<List<ContactShort>> {
-        return Observable.zip(
-                contactRemoteRepository.getList(FIRST_SOURCE_NUMBER).onErrorReturn {
-                    emptyList()
-                },
-                contactRemoteRepository.getList(SECOND_SOURCE_NUMBER).onErrorReturn {
-                    emptyList()
-                },
-                contactRemoteRepository.getList(THIRD_SOURCE_NUMBER).onErrorReturn {
-                    emptyList()
-                },
-                Function3<List<Contact>, List<Contact>, List<Contact>, List<Contact>>
-                zip@{ firstContacts,
-                      secondContacts,
-                      thirdContacts: List<Contact> ->
+    fun getListFromServer(): Observable<List<ContactShort>> {
+        contactsShort = ArrayList()
 
-                    return@zip onGetListFromServer(firstContacts as ArrayList<Contact>, secondContacts, thirdContacts)
-                }).subscribeOn(Schedulers.io())
+        return Observable.range(START_SOURCE_NUMBER, COUNT_SOURCES)
+                .flatMap { number ->
+                    return@flatMap contactRemoteRepository.getList(formatResourceNumber(number))
+                }.subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.single())
-                .map { reponseContacts ->
+                .flatMap { contacts ->
+                    val savedContacts = contactLocalRepository.saveList(contacts)
 
-                    val contacts = saveContacts(reponseContacts, query)
-
-                    return@map modelsToShortList(contacts)
+                    return@flatMap Observable.fromArray(savedContacts)
                 }
+                .observeOn(Schedulers.computation())
+                .flatMap { contacts ->
+                    val contactsShort = modelsToShortList(contacts)
+                    this.contactsShort.addAll(contactsShort)
+                    return@flatMap Observable.fromArray(contactsShort)
+                }
+                .observeOn(Schedulers.single())
     }
 
     fun getListFromLocal(query: String? = null): Observable<List<ContactShort>> {
@@ -84,32 +81,25 @@ class ContactInteractor @Inject constructor(
 
         return request
                 .subscribeOn(Schedulers.single())
-                .observeOn(Schedulers.single())
+                .observeOn(Schedulers.computation())
                 .map { contacts ->
-                    return@map modelsToShortList(contacts)
+                    contactsShort = modelsToShortList(contacts) as ArrayList<ContactShort>
+                    return@map contactsShort
                 }
     }
 
-    private fun onGetListFromServer(
-            firstContacts: ArrayList<Contact>,
-            secondContacts: List<Contact>,
-            thirdContacts: List<Contact>): List<Contact> {
-
-        firstContacts.addAll(secondContacts)
-        firstContacts.addAll(thirdContacts)
-
-        return firstContacts
-    }
-
-    private fun saveContacts(reponseContacts: List<Contact>, query: String? = null): List<Contact> {
-        contactLocalRepository.clearDataBase()
-        var contacts = contactLocalRepository.saveList(reponseContacts)!!
-
-        if (!TextUtils.isEmpty(query)) {
-            contacts = contactLocalRepository.getList(query)!!
+    fun getSortedContactsShort(query: String? = null): List<ContactShort> {
+        if (!TextUtils.isEmpty(query) && isGettingListFromServer) {
+            contactsShort = modelsToShortList(contactLocalRepository.getList(query)!!) as ArrayList<ContactShort>
+        } else if (isGettingListFromServer) {
+            contactsShort.sortBy { it.name }
         }
 
-        return contacts
+        return contactsShort
+    }
+
+    private fun formatResourceNumber(number: Int): String {
+        return number.toString().padStart(2, '0')
     }
 
     private fun modelsToShortList(contacts: List<Contact>): List<ContactShort> {

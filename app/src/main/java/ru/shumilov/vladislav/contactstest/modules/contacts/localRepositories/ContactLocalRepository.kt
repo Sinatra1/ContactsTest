@@ -1,12 +1,12 @@
 package ru.shumilov.vladislav.contactstest.modules.contacts.localRepositories
 
 import android.text.TextUtils
+import ru.shumilov.vladislav.contactstest.core.dao.BaseDao
 import ru.shumilov.vladislav.contactstest.core.localRepositories.BaseLocalRepository
 import ru.shumilov.vladislav.contactstest.modules.contacts.dao.ContactDao
 import ru.shumilov.vladislav.contactstest.modules.contacts.models.Contact
 import ru.shumilov.vladislav.contactstest.modules.core.injection.ContactScope
 import ru.shumilov.vladislav.contactstest.modules.core.preferences.PhoneHelper
-import java.util.*
 import javax.inject.Inject
 
 @ContactScope
@@ -30,7 +30,9 @@ class ContactLocalRepository @Inject constructor(
             realmQuery.contains("name_lowercase", query!!.toLowerCase())
         }
 
-        return contactDao.getList(whereList, null, realmQuery)
+        val sortList = hashMapOf(contactDao.getSortKey() to BaseDao.ASC)
+
+        return contactDao.getList(whereList, sortList, realmQuery)
     }
 
     override fun beforeSave(contact: Contact?): Contact? {

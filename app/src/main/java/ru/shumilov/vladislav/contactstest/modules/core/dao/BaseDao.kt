@@ -22,6 +22,7 @@ open class BaseDao<Model : BaseModel> @Inject constructor(
         const val TRUE = "true"
         const val FALSE = "false"
         const val DESC = "desc"
+        const val ASC = "asc"
     }
 
     protected val dateHelper: DateHelper = DateHelper()
@@ -143,7 +144,7 @@ open class BaseDao<Model : BaseModel> @Inject constructor(
             }
         }
 
-        return realm.copyFromRealm(query.findAll().sort(sortKey, sortValue)) as List<Model>?
+        return realm.copyFromRealm(query.sort(sortKey, sortValue).findAll()) as List<Model>?
     }
 
     open fun getListQuery(whereList: HashMap<String, String>? = null): RealmQuery<RealmObject> {
@@ -245,7 +246,7 @@ open class BaseDao<Model : BaseModel> @Inject constructor(
         return count.toString()
     }
 
-    open protected fun getSortKey(): String {
+    open fun getSortKey(): String {
         return "name"
     }
 
