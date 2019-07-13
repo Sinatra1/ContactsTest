@@ -31,12 +31,15 @@ class PhoneHelper {
         const val CALL_PHONE_REQUEST_CODE = 100
     }
 
+    private val onlyNumbersRegex = Regex(ONLY_NUMBERS)
+    private val phoneFormatRegex = Regex(PHONE_FORMAT)
+
     fun formattedPhoneToOnlyNumbers(phone: String?): String? {
         if (phone == null) {
             return null
         }
 
-        return phone.replace(Regex(ONLY_NUMBERS), "")
+        return phone.replace(onlyNumbersRegex, "")
     }
 
     fun onlyNumbersToFormattedPhone(phone: String?): String? {
@@ -44,7 +47,7 @@ class PhoneHelper {
             return null
         }
 
-        return phone.replace(Regex(PHONE_FORMAT), "+$1 ($2) $3-$4")
+        return phone.replace(phoneFormatRegex, "+$1 ($2) $3-$4")
     }
 
     private fun isViewAttached(): Boolean {

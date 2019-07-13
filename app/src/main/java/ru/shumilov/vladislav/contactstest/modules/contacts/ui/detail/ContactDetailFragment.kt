@@ -16,7 +16,6 @@ import kotlinx.android.synthetic.main.contact_detail.*
 import ru.shumilov.vladislav.contactstest.R
 import ru.shumilov.vladislav.contactstest.app
 import ru.shumilov.vladislav.contactstest.modules.contacts.models.Contact
-import ru.shumilov.vladislav.contactstest.modules.core.functions.safe
 import ru.shumilov.vladislav.contactstest.modules.core.preferences.PhoneHelper
 import ru.shumilov.vladislav.contactstest.modules.core.preferences.TextHelper
 import javax.inject.Inject
@@ -52,9 +51,7 @@ class ContactDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        safe {
-            app()?.createContactComponent()?.inject(this)
-        }
+        app()?.createContactComponent()?.inject(this)
 
         setListeners()
 
@@ -125,5 +122,11 @@ class ContactDetailFragment : Fragment() {
         phoneHelper.onDestroy()
 
         super.onStop()
+    }
+
+    override fun onDestroyView() {
+        app()?.clearContactComponent()
+
+        super.onDestroyView()
     }
 }

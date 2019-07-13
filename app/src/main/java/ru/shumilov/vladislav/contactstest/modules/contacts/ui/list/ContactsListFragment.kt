@@ -19,7 +19,6 @@ import ru.shumilov.vladislav.contactstest.R
 import ru.shumilov.vladislav.contactstest.app
 import ru.shumilov.vladislav.contactstest.modules.contacts.models.ContactShort
 import ru.shumilov.vladislav.contactstest.modules.contacts.ui.detail.ContactDetailFragment
-import ru.shumilov.vladislav.contactstest.modules.core.functions.safe
 import ru.shumilov.vladislav.contactstest.modules.core.ui.RecyclerViewListener
 import javax.inject.Inject
 
@@ -51,9 +50,7 @@ class ContactsListFragment @Inject constructor() : Fragment(), SwipeRefreshLayou
 
         setHasOptionsMenu(true)
 
-        safe {
-            app()?.createContactComponent()?.inject(this)
-        }
+        app()?.createContactComponent()?.inject(this)
 
         setListeners()
 
@@ -137,9 +134,7 @@ class ContactsListFragment @Inject constructor() : Fragment(), SwipeRefreshLayou
     }
 
     override fun onDestroyView() {
-        safe {
-            app()?.clearContactComponent()
-        }
+        app()?.clearContactComponent()
 
         super.onDestroyView()
     }
@@ -150,9 +145,7 @@ class ContactsListFragment @Inject constructor() : Fragment(), SwipeRefreshLayou
             return
         }
 
-        safe {
-            viewModel.loadContactsForce(query)
-        }
+        viewModel.loadContactsForce(query)
     }
 
     private fun setListeners() {
