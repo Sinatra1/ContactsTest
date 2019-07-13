@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.support.annotation.RequiresApi
 import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
-import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -67,10 +66,6 @@ class ContactDetailFragment : Fragment() {
 
         val contactId = arguments?.getString(CONTACT_ID_KEY)
 
-        if (TextUtils.isEmpty(contactId)) {
-            return
-        }
-
         viewModel.loadContact(contactId)
     }
 
@@ -88,9 +83,9 @@ class ContactDetailFragment : Fragment() {
             showContact(contact)
         })
 
-        (phone as TextView).setOnClickListener(View.OnClickListener {
+        phone.setOnClickListener{
             phoneHelper.dialPhoneNumber(contact.phone, this)
-        })
+        }
     }
 
     private fun showContactError() {
