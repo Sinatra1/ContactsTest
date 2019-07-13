@@ -22,8 +22,8 @@ class ContactModule : BaseModule<ContactApi>() {
     @Provides
     @ContactScope
     @Named("contactApi")
-    fun provideFieldApiRetrofit(gson: Gson,
-                                okHttpClient: OkHttpClient): Retrofit {
+    fun provideContactApiRetrofit(gson: Gson,
+                                  okHttpClient: OkHttpClient): Retrofit {
 
         return super.provideApiRetrofit(gson, okHttpClient)
     }

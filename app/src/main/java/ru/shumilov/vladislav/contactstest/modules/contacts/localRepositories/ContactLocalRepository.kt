@@ -11,7 +11,8 @@ import javax.inject.Inject
 
 @ContactScope
 class ContactLocalRepository @Inject constructor(
-        private val contactDao: ContactDao) : BaseLocalRepository<Contact>(contactDao) {
+        private val contactDao: ContactDao
+) : BaseLocalRepository<Contact>(contactDao) {
 
     protected val phoneHelper = PhoneHelper()
 

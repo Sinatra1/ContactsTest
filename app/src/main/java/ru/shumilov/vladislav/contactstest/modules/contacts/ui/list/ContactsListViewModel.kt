@@ -17,11 +17,11 @@ class ContactsListViewModel constructor(
         const val INPUT_FREQUENCY_MILLIS = 1000L //1 sec
     }
 
-    private val mustShowProgress = MutableLiveData<Boolean>().apply { false }
-    private val mustShowContactsError = MutableLiveData<Boolean>().apply { false }
-    private val contacts = MutableLiveData<List<ContactShort>>().apply { emptyList<ContactShort>() }
+    private val mustShowProgress = MutableLiveData<Boolean>().apply { value = false }
+    private val mustShowContactsError = MutableLiveData<Boolean>().apply { value = false }
+    private val contacts = MutableLiveData<List<ContactShort>>().apply { value = ArrayList() }
     private val compositeDisposable = CompositeDisposable()
-    private val inProcess = MutableLiveData<Boolean>().apply { false }
+    private val inProcess = MutableLiveData<Boolean>().apply { value = false }
 
     fun loadContacts() {
         if (inProcess.value == true) {

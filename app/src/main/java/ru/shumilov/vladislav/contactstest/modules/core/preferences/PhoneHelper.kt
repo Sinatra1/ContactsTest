@@ -3,7 +3,6 @@ package ru.shumilov.vladislav.contactstest.modules.core.preferences
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -15,8 +14,6 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
-import android.support.v7.app.AppCompatActivity
-import android.widget.Toast
 import ru.shumilov.vladislav.contactstest.R
 import ru.shumilov.vladislav.contactstest.modules.core.injection.ApplicationScope
 import java.lang.ref.WeakReference
