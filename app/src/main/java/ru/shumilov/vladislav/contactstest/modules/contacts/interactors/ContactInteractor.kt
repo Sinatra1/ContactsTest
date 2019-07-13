@@ -5,12 +5,11 @@ import io.reactivex.Observable
 import io.reactivex.ObservableOnSubscribe
 import io.reactivex.functions.Function3
 import io.reactivex.schedulers.Schedulers
-import ru.shumilov.vladislav.contactstest.core.interactors.BaseInteractor
 import ru.shumilov.vladislav.contactstest.core.preferences.DateHelper
-import ru.shumilov.vladislav.contactstest.modules.contacts.api.ContactApi
 import ru.shumilov.vladislav.contactstest.modules.contacts.localRepositories.ContactLocalRepository
 import ru.shumilov.vladislav.contactstest.modules.contacts.models.Contact
 import ru.shumilov.vladislav.contactstest.modules.contacts.models.ContactShort
+import ru.shumilov.vladislav.contactstest.modules.contacts.remoteRepositories.ContactRemoteRepository
 import ru.shumilov.vladislav.contactstest.modules.core.injection.ContactScope
 import ru.simpls.brs2.commons.modules.core.preferenses.DaoPreferencesHelper
 import javax.inject.Inject
@@ -18,9 +17,9 @@ import javax.inject.Inject
 
 @ContactScope
 class ContactInteractor @Inject constructor(
-        private val contactApi: ContactApi,
+        private val contactRemoteRepository: ContactRemoteRepository,
         private val contactLocalRepository: ContactLocalRepository,
-        private val daoPreferencesHelper: DaoPreferencesHelper) : BaseInteractor<Contact, Contact>(contactLocalRepository) {
+        private val daoPreferencesHelper: DaoPreferencesHelper) {
 
     companion object {
         const val FIRST_SOURCE_NUMBER = "01"
@@ -51,13 +50,13 @@ class ContactInteractor @Inject constructor(
 
     fun getListFromServer(query: String? = null): Observable<List<ContactShort>> {
         return Observable.zip(
-                contactApi.getList(FIRST_SOURCE_NUMBER).onErrorReturn {
+                contactRemoteRepository.getList(FIRST_SOURCE_NUMBER).onErrorReturn {
                     emptyList()
                 },
-                contactApi.getList(SECOND_SOURCE_NUMBER).onErrorReturn {
+                contactRemoteRepository.getList(SECOND_SOURCE_NUMBER).onErrorReturn {
                     emptyList()
                 },
-                contactApi.getList(THIRD_SOURCE_NUMBER).onErrorReturn {
+                contactRemoteRepository.getList(THIRD_SOURCE_NUMBER).onErrorReturn {
                     emptyList()
                 },
                 Function3<List<Contact>, List<Contact>, List<Contact>, List<Contact>>
@@ -117,27 +116,10 @@ class ContactInteractor @Inject constructor(
         val shortContacts = ArrayList<ContactShort>()
 
         for (contact: Contact in contacts) {
-            shortContacts.add(modelToShort(contact))
+            shortContacts.add(contactRemoteRepository.responseToModel(contact))
         }
 
         return shortContacts
-    }
-
-    private fun modelToShort(contact: Contact): ContactShort {
-        val contactShort = ContactShort()
-
-        contactShort.id = contact.id
-        contactShort.name = contact.name
-        contactShort.name_lowercase = contact.name_lowercase
-        contactShort.created_at = contact.created_at
-        contactShort.updated_at = contact.updated_at
-        contactShort.is_deleted = contact.is_deleted
-        contactShort.deleted_at = contact.deleted_at
-        contactShort.phone = contact.phone
-        contactShort.height = contact.height
-        contactShort.temperament = contact.temperament
-
-        return contactShort
     }
 
     private fun mustGetListFromServer(): Boolean {
@@ -151,9 +133,5 @@ class ContactInteractor @Inject constructor(
                 daoPreferencesHelper.isFirstTimeApplicationLoaded()
 
         return result
-    }
-
-    override fun responseToModel(modelResponse: Contact): Contact {
-        return modelResponse
     }
 }
