@@ -1,8 +1,7 @@
-package ru.simpls.brs2.commons.modules.core.preferenses
+package ru.shumilov.vladislav.contactstest.modules.core.preferenses
 
 import android.content.Context
 import android.content.SharedPreferences
-import ru.shumilov.vladislav.contactstest.modules.contacts.models.Contact
 import ru.shumilov.vladislav.contactstest.modules.core.injection.ApplicationContext
 import ru.shumilov.vladislav.contactstest.modules.core.injection.ApplicationScope
 import javax.inject.Inject
@@ -11,45 +10,45 @@ import javax.inject.Inject
 open class DaoPreferencesHelper {
 
     companion object {
-        private const val IS_FIRST_TIME_APPLICATION_LOADED = "is_first_time_application_loaded"
+        const val DATA_LOADED_MOMENT = "data_loaded_moment"
         private const val PREF_FILE_NAME = "dao.preferences"
     }
 
-    private lateinit var sharedPreferences: SharedPreferences
+    private val sharedPreferences: SharedPreferences
 
     @Inject
     constructor(@ApplicationContext context: Context) {
         sharedPreferences = context.getSharedPreferences(PREF_FILE_NAME, Context.MODE_PRIVATE)
     }
 
-    fun saveContactsLoadMoment() {
-        saveLoadMoment(Contact().javaClass.simpleName)
+    fun wasDataLoadedBefore(): Boolean {
+        return getDataLoadMoment() > 0L
     }
 
-    fun getContactsLoadedMoment(): Long {
-        return getSavedMoment(Contact().javaClass.simpleName)
+    fun saveDataLoadMoment(loadMoment: Long = System.currentTimeMillis()) {
+        saveLoadMoment(DATA_LOADED_MOMENT, loadMoment)
     }
 
-    fun isFirstTimeApplicationLoaded(): Boolean {
-        return getBoolean(IS_FIRST_TIME_APPLICATION_LOADED)
+    fun getDataLoadMoment(): Long {
+        return getSavedMoment(DATA_LOADED_MOMENT)
     }
 
-    fun setFirstTimeApplicationLoaded(value: Boolean = true) {
-        saveBoolean(IS_FIRST_TIME_APPLICATION_LOADED, value)
-    }
-
-    fun saveLoadMoment(className: String, loadMoment: Long = System.currentTimeMillis(), login: String = "any") {
+    fun saveLoadMoment(className: String, loadMoment: Long = System.currentTimeMillis(), login: String = "save") {
         sharedPreferences.edit()
                 .putLong("$className/$login", loadMoment)
                 .apply()
     }
 
-    fun clearLoadMoment(className: String, login: String = "any") {
-        saveLoadMoment(className, 0L, login)
+    fun saveClearMoment(className: String, action: String = "clear") {
+        saveLoadMoment(className, 0L, action)
     }
 
-    fun getSavedMoment(className: String, login: String = "any"): Long {
-        return sharedPreferences.getLong("$className/$login", 0L)
+    fun saveDeleteMoment(className: String, action: String = "delete") {
+        saveLoadMoment(className, 0L, action)
+    }
+
+    fun getSavedMoment(className: String, action: String = "save"): Long {
+        return sharedPreferences.getLong("$className/$action", 0L)
     }
 
     fun saveString(className: String, value: String) {
@@ -77,12 +76,6 @@ open class DaoPreferencesHelper {
 
     fun getBoolean(className: String): Boolean {
         return sharedPreferences.getBoolean("$className", false)
-    }
-
-    open fun isStoredDataExpired(className: String, periodMinutes: Int, login: String = "any"): Boolean {
-        val loadMoment = getSavedMoment(className, login)
-
-        return System.currentTimeMillis() - loadMoment > periodMinutes * 60 * 1000
     }
 }
 

@@ -9,9 +9,8 @@ import io.realm.Realm
 import ru.shumilov.vladislav.contactstest.modules.contacts.injection.ContactComponent
 import ru.shumilov.vladislav.contactstest.modules.contacts.injection.ContactModule
 import ru.shumilov.vladislav.contactstest.modules.core.injection.AppComponent
-import ru.shumilov.vladislav.contactstest.modules.core.injection.modules.AppModule
 import ru.shumilov.vladislav.contactstest.modules.core.injection.DaggerAppComponent
-import ru.simpls.brs2.commons.modules.core.preferenses.DaoPreferencesHelper
+import ru.shumilov.vladislav.contactstest.modules.core.injection.modules.AppModule
 import kotlin.properties.Delegates
 
 fun Activity.app() = this.application as App
@@ -21,9 +20,6 @@ class App : Application() {
 
     var appComponent: AppComponent by Delegates.notNull()
     var contactComponent: ContactComponent? = null
-    private val daoPreferencesHelper: DaoPreferencesHelper by lazy {
-        DaoPreferencesHelper(this)
-    }
 
     override fun onCreate() {
         super.onCreate()
@@ -31,8 +27,6 @@ class App : Application() {
         appComponent = DaggerAppComponent.builder().appModule(AppModule(this)).build()
 
         initRealm()
-
-        saveApplicationLoadMoment()
     }
 
     fun createContactComponent(): ContactComponent {
@@ -53,13 +47,5 @@ class App : Application() {
                 Stetho.newInitializerBuilder(this)
                         .enableDumpapp(Stetho.defaultDumperPluginsProvider(this))
                         .enableWebKitInspector(RealmInspectorModulesProvider.builder(this).build()).build())
-    }
-
-    private fun saveApplicationLoadMoment() {
-        if (daoPreferencesHelper.getContactsLoadedMoment() == 0L) {
-            daoPreferencesHelper.setFirstTimeApplicationLoaded(true)
-        } else {
-            daoPreferencesHelper.setFirstTimeApplicationLoaded(false)
-        }
     }
 }

@@ -11,7 +11,7 @@ import ru.shumilov.vladislav.contactstest.modules.contacts.models.Contact
 import ru.shumilov.vladislav.contactstest.modules.contacts.models.ContactShort
 import ru.shumilov.vladislav.contactstest.modules.contacts.remoteRepositories.ContactRemoteRepository
 import ru.shumilov.vladislav.contactstest.modules.core.injection.ContactScope
-import ru.simpls.brs2.commons.modules.core.preferenses.DaoPreferencesHelper
+import ru.shumilov.vladislav.contactstest.modules.core.preferenses.DaoPreferencesHelper
 import javax.inject.Inject
 
 
@@ -123,15 +123,13 @@ class ContactInteractor @Inject constructor(
     }
 
     private fun mustGetListFromServer(): Boolean {
-        val applicationLoadMomentMillis = daoPreferencesHelper.getContactsLoadedMoment()
-        var nowMillis = dateHelper.now()
+        val dataLoadMomentMillis = daoPreferencesHelper.getDataLoadMoment()
+        val nowMillis = dateHelper.now()
 
-        val result = (
-                (nowMillis - applicationLoadMomentMillis) > UPDATE_FREQUENCY_MILLIS &&
-                        !daoPreferencesHelper.isFirstTimeApplicationLoaded()
+        return (
+                (nowMillis - dataLoadMomentMillis) > UPDATE_FREQUENCY_MILLIS &&
+                        daoPreferencesHelper.wasDataLoadedBefore()
                 ) ||
-                daoPreferencesHelper.isFirstTimeApplicationLoaded()
-
-        return result
+                !daoPreferencesHelper.wasDataLoadedBefore()
     }
 }

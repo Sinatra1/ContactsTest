@@ -7,17 +7,9 @@ import javax.inject.Scope
 @kotlin.annotation.Retention(AnnotationRetention.RUNTIME)
 annotation class ApplicationContext
 
-@Qualifier
-@kotlin.annotation.Retention(AnnotationRetention.RUNTIME)
-annotation class ActivityContext
-
 @Scope
 @kotlin.annotation.Retention(AnnotationRetention.RUNTIME)
 annotation class ApplicationScope
-
-@Scope
-@kotlin.annotation.Retention(AnnotationRetention.RUNTIME)
-annotation class ActivityScope
 
 @Scope
 @kotlin.annotation.Retention(AnnotationRetention.RUNTIME)

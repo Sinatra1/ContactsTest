@@ -3,9 +3,9 @@ package ru.shumilov.vladislav.contactstest.core.dao
 import io.realm.*
 import ru.shumilov.vladislav.contactstest.core.models.BaseModel
 import ru.shumilov.vladislav.contactstest.core.preferences.DateHelper
+import ru.shumilov.vladislav.contactstest.modules.core.functions.safe
 import ru.shumilov.vladislav.contactstest.modules.core.injection.ApplicationScope
-import ru.simpls.brs2.commons.functions.safe
-import ru.simpls.brs2.commons.modules.core.preferenses.DaoPreferencesHelper
+import ru.shumilov.vladislav.contactstest.modules.core.preferenses.DaoPreferencesHelper
 import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
@@ -36,13 +36,14 @@ open class BaseDao<Model : BaseModel> @Inject constructor(
                         realm.executeTransaction {
                             realm?.insertOrUpdate(preparedModel)
 
-                            daoPreferencesHelper.saveLoadMoment(preparedModel.javaClass.simpleName)
+                            saveModelLoadMoment()
+                            daoPreferencesHelper.saveDataLoadMoment()
                         }
                     }
                 }
             }
         } catch (e: RuntimeException) {
-            Timber.e(this.javaClass.simpleName, e.message)
+            Timber.e(getModelKey(), e.message)
         } finally {
             return preparedModel
         }
@@ -60,11 +61,12 @@ open class BaseDao<Model : BaseModel> @Inject constructor(
                 realm.executeTransaction {
                     realm?.insertOrUpdate(models as MutableCollection<RealmModel>)
 
-                    daoPreferencesHelper.saveLoadMoment(models.first().javaClass.simpleName)
+                    saveModelLoadMoment()
+                    daoPreferencesHelper.saveDataLoadMoment()
                 }
             }
         } catch (e: RuntimeException) {
-            Timber.e(this.javaClass.simpleName, e.message)
+            Timber.e(getModelKey(), e.message)
         } finally {
             return models
         }
@@ -197,7 +199,7 @@ open class BaseDao<Model : BaseModel> @Inject constructor(
 
                 realm.insertOrUpdate(model)
 
-                daoPreferencesHelper.saveLoadMoment((getEmptyModel() as RealmObject).javaClass.simpleName)
+                saveDeleteModelMoment()
             }
         }
 
@@ -209,7 +211,7 @@ open class BaseDao<Model : BaseModel> @Inject constructor(
 
         realm.executeTransaction {
             realm.delete((getEmptyModel() as RealmObject).javaClass)
-            daoPreferencesHelper.clearLoadMoment((getEmptyModel() as RealmObject).javaClass.simpleName)
+            saveClearModelMoment()
         }
     }
 
@@ -218,7 +220,7 @@ open class BaseDao<Model : BaseModel> @Inject constructor(
 
         realm.executeTransaction {
             realm.deleteAll()
-            daoPreferencesHelper.clearLoadMoment((getEmptyModel() as RealmObject).javaClass.simpleName)
+            saveClearModelMoment()
         }
     }
 
@@ -231,7 +233,7 @@ open class BaseDao<Model : BaseModel> @Inject constructor(
         realm.executeTransaction {
             val query = realm.where((getEmptyModel() as RealmObject).javaClass).equalTo("id", modelId).findFirst()
             query?.deleteFromRealm()
-            daoPreferencesHelper.clearLoadMoment((getEmptyModel() as RealmObject).javaClass.simpleName)
+            saveClearModelMoment()
         }
     }
 
@@ -249,6 +251,22 @@ open class BaseDao<Model : BaseModel> @Inject constructor(
 
     open protected fun getEmptyModel(): Model? {
         return null
+    }
+
+    private fun saveDeleteModelMoment() {
+        daoPreferencesHelper.saveDeleteMoment(getModelKey())
+    }
+
+    private fun saveClearModelMoment() {
+        daoPreferencesHelper.saveClearMoment(getModelKey())
+    }
+
+    private fun saveModelLoadMoment() {
+        daoPreferencesHelper.saveLoadMoment(getModelKey())
+    }
+
+    open fun getModelKey(): String {
+        return ""
     }
 }
 

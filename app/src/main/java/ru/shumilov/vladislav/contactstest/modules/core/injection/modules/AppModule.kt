@@ -4,7 +4,7 @@ import android.content.Context
 import dagger.Module
 import dagger.Provides
 import ru.shumilov.vladislav.contactstest.App
-import ru.simpls.brs2.commons.modules.core.preferenses.DaoPreferencesHelper
+import ru.shumilov.vladislav.contactstest.modules.core.preferenses.DaoPreferencesHelper
 import ru.shumilov.vladislav.contactstest.modules.core.injection.ApplicationContext
 import ru.shumilov.vladislav.contactstest.modules.core.injection.ApplicationScope
 

@@ -16,9 +16,9 @@ import kotlinx.android.synthetic.main.contact_detail.*
 import ru.shumilov.vladislav.contactstest.R
 import ru.shumilov.vladislav.contactstest.app
 import ru.shumilov.vladislav.contactstest.modules.contacts.models.Contact
+import ru.shumilov.vladislav.contactstest.modules.core.functions.safe
 import ru.shumilov.vladislav.contactstest.modules.core.preferences.PhoneHelper
 import ru.shumilov.vladislav.contactstest.modules.core.preferences.TextHelper
-import ru.simpls.brs2.commons.functions.safe
 import javax.inject.Inject
 
 class ContactDetailFragment : Fragment() {
@@ -54,12 +54,12 @@ class ContactDetailFragment : Fragment() {
 
         safe {
             app()?.createContactComponent()?.inject(this)
+        }
 
-            setListeners()
+        setListeners()
 
-            if (savedInstanceState == null) {
-                loadContact()
-            }
+        if (savedInstanceState == null) {
+            loadContact()
         }
     }
 

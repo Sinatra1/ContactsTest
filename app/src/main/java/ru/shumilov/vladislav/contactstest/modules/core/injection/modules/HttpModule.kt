@@ -7,7 +7,7 @@ import okhttp3.Cache
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
-import ru.simpls.brs2.commons.modules.core.preferenses.DaoPreferencesHelper
+import ru.shumilov.vladislav.contactstest.modules.core.preferenses.DaoPreferencesHelper
 import ru.shumilov.vladislav.contactstest.modules.core.injection.ApplicationContext
 import ru.shumilov.vladislav.contactstest.modules.core.injection.ApplicationScope
 

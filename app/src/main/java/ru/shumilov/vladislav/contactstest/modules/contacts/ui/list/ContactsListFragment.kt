@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import android.support.v4.widget.SwipeRefreshLayout
+import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.SearchView
 import android.text.TextUtils
@@ -18,10 +19,9 @@ import ru.shumilov.vladislav.contactstest.R
 import ru.shumilov.vladislav.contactstest.app
 import ru.shumilov.vladislav.contactstest.modules.contacts.models.ContactShort
 import ru.shumilov.vladislav.contactstest.modules.contacts.ui.detail.ContactDetailFragment
+import ru.shumilov.vladislav.contactstest.modules.core.functions.safe
 import ru.shumilov.vladislav.contactstest.modules.core.ui.RecyclerViewListener
-import ru.simpls.brs2.commons.functions.safe
 import javax.inject.Inject
-import android.support.v7.widget.DividerItemDecoration
 
 
 class ContactsListFragment @Inject constructor() : Fragment(), SwipeRefreshLayout.OnRefreshListener, RecyclerViewListener<ContactShort> {
@@ -53,12 +53,12 @@ class ContactsListFragment @Inject constructor() : Fragment(), SwipeRefreshLayou
 
         safe {
             app()?.createContactComponent()?.inject(this)
+        }
 
-            setListeners()
+        setListeners()
 
-            if (savedInstanceState == null) {
-                viewModel.loadContacts()
-            }
+        if (savedInstanceState == null) {
+            viewModel.loadContacts()
         }
     }
 

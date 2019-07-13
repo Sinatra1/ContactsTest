@@ -1,7 +1,6 @@
-package ru.simpls.brs2.commons.functions
+package ru.shumilov.vladislav.contactstest.modules.core.functions
 
 import timber.log.Timber
-
 
 inline fun safe(f: (() -> Unit)) {
     try {
@@ -9,13 +8,4 @@ inline fun safe(f: (() -> Unit)) {
     } catch (e: Exception) {
         Timber.e(e, e.message)
     }
-}
-
-inline fun wasInit(f: () -> Unit): Boolean {
-    try {
-        f()
-    } catch(e: RuntimeException) {
-        return false
-    }
-    return true
 }
