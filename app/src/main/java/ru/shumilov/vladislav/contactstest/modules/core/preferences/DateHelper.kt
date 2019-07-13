@@ -12,21 +12,24 @@ class DateHelper {
         const val HUMAN_DATE_FORMAT = "dd.MM.yyyy"
     }
 
-    fun dateToDbStr(date: Date? = null, formatStr: String? = DB_FORMAT): String {
+    private val dbSimpleDateFormat = SimpleDateFormat(DB_FORMAT)
+    private val humanSimpleDateFormat = SimpleDateFormat(HUMAN_DATE_FORMAT)
+
+    fun dateToDbStr(date: Date? = null, formatStr: String = DB_FORMAT): String {
         var tmpDate = date
 
         if (tmpDate == null) {
             tmpDate = Date()
         }
 
-        val sm = SimpleDateFormat(formatStr)
+        val sm = getSimpleDateFormat(formatStr)
 
         return sm.format(tmpDate)
     }
 
-    fun dbStrToDate(dbDate: String, formatStr: String? = DB_FORMAT): Date {
+    fun dbStrToDate(dbDate: String, formatStr: String = DB_FORMAT): Date {
 
-        val sm = SimpleDateFormat(formatStr)
+        val sm = getSimpleDateFormat(formatStr)
 
         return sm.parse(dbDate)
     }
@@ -62,11 +65,13 @@ class DateHelper {
     fun isTodayDate(datetime: String): Boolean {
         val dateTimeDate = dbStrToDate(datetime)
 
-        if (dbDatetimeToHumanDate(dateToDbStr(dateTimeDate)) == dbDatetimeToHumanDate(dateToDbStr())) {
-            return true
-        }
+        val calendar = Calendar.getInstance()
+        calendar.time = dateTimeDate
 
-        return false
+        val calendarNow = Calendar.getInstance()
+
+        return calendar.get(Calendar.YEAR) == calendarNow.get(Calendar.YEAR) &&
+                calendar.get(Calendar.DAY_OF_YEAR) == calendarNow.get(Calendar.DAY_OF_YEAR)
     }
 
     fun now(): Long {
@@ -78,10 +83,18 @@ class DateHelper {
             return ""
         }
 
-        return SimpleDateFormat(HUMAN_DATE_FORMAT).format(utcStrToDate(utcStr))
+        return humanSimpleDateFormat.format(utcStrToDate(utcStr))
     }
 
     fun utcStrToDate(utcStr: String): Date {
-        return SimpleDateFormat(DB_FORMAT).parse(utcStr.replace("T", " "))
+        return dbSimpleDateFormat.parse(utcStr.replace("T", " "))
+    }
+
+    private fun getSimpleDateFormat(formatStr: String = DB_FORMAT): SimpleDateFormat {
+        if (formatStr == DB_FORMAT) {
+            return dbSimpleDateFormat
+        }
+
+        return SimpleDateFormat(formatStr)
     }
 }
