@@ -28,7 +28,7 @@ class ContactInteractor @Inject constructor(
 
     private val dateHelper = DateHelper()
     private var contactsShort: ArrayList<ContactShort> = ArrayList()
-    private var isGettingListFromServer = true
+    var isGettingListFromServer = true
 
     fun getById(id: String): Observable<Contact> {
         val request = Observable.create(ObservableOnSubscribe<Contact> { emitter ->

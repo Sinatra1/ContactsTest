@@ -17,8 +17,9 @@ class ContactDetailViewModel constructor(
         private val errorHelper: ErrorHelper) : ViewModel() {
 
     private val contactError = MutableLiveData<String>()
-    var contact = ObservableField<Contact>()
     private val compositeDisposable = CompositeDisposable()
+    var contact = ObservableField<Contact>()
+    var contactLiveData = MutableLiveData<Contact>()
     val phoneHelper = PhoneHelper()
     val textHelper = TextHelper()
 
@@ -36,6 +37,10 @@ class ContactDetailViewModel constructor(
         }))
     }
 
+    fun getContact(): LiveData<Contact> {
+        return contactLiveData
+    }
+
     fun getContactError(): LiveData<String> {
         return contactError
     }
@@ -46,6 +51,7 @@ class ContactDetailViewModel constructor(
 
     private fun onLoadedContactSuccess(contact: Contact) {
         this.contact.set(contact)
+        contactLiveData.postValue(contact)
     }
 
     private fun onLoadedContactError(error: Throwable) {

@@ -76,6 +76,10 @@ class ContactDetailFragment : Fragment() {
     }
 
     private fun setListeners() {
+        viewModel.getContact().observe(this, Observer { contact ->
+            this.contact = contact!!
+        })
+
         viewModel.getContactError().observe(this, Observer { contactError ->
             showContactError(contactError)
         })

@@ -1,27 +1,28 @@
 package ru.shumilov.vladislav.contactstest.modules.contacts.ui.list
 
-import android.view.LayoutInflater
-import android.view.View
-import android.widget.TextView
-import ru.shumilov.vladislav.contactstest.R
+import android.support.v7.widget.RecyclerView
+import ru.shumilov.vladislav.contactstest.databinding.ContactsListRowBinding
 import ru.shumilov.vladislav.contactstest.modules.contacts.models.ContactShort
 import ru.shumilov.vladislav.contactstest.modules.core.preferences.PhoneHelper
-import ru.shumilov.vladislav.contactstest.modules.core.ui.BaseViewHolder
-import javax.inject.Inject
+import android.databinding.ObservableField
 
-class ContactsListHolder @Inject constructor(
-        protected val inflater: LayoutInflater,
-        protected var view: View) : BaseViewHolder<ContactShort>(inflater, view) {
+class ContactsListHolder constructor(private val binding: ContactsListRowBinding) :
+        RecyclerView.ViewHolder(binding.root) {
 
-    private val nameView: TextView = view.findViewById(R.id.name)
-    private val phoneView: TextView = view.findViewById(R.id.phone)
-    private val heightView: TextView = view.findViewById(R.id.height)
-    private val phoneHelper = PhoneHelper()
+    val phoneHelper = PhoneHelper()
+    var item = ObservableField<ContactShort>()
 
-    override fun setDataToView() {
-        nameView.text = item?.name
-        phoneView.text = phoneHelper.onlyNumbersToFormattedPhone(item?.phone)
-        heightView.text = item?.height.toString()
+    fun bind(item: ContactShort) {
+        this.item.set(item)
+        binding.viewHolder = this
+        binding.executePendingBindings()
     }
 
+    fun setListener(listener: OnItemClickListener, item: ContactShort, position: Int) {
+        itemView.setOnClickListener { listener.onItemClick(item, position) }
+    }
+
+    interface OnItemClickListener {
+        fun onItemClick(item: ContactShort, position: Int)
+    }
 }

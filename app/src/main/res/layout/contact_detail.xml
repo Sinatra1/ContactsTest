@@ -6,13 +6,11 @@
         <variable
             name="viewModel"
             type="ru.shumilov.vladislav.contactstest.modules.contacts.ui.detail.ContactDetailViewModel" />
-
     </data>
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-
         android:padding="@dimen/fragment_horizontal_margin">
 
         <TextView

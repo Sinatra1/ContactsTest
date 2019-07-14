@@ -24,7 +24,7 @@ class ContactsListViewModel constructor(
     private val contacts = MutableLiveData<List<ContactShort>>().apply { value = ArrayList() }
     private val compositeDisposable = CompositeDisposable()
     private val inProcess = MutableLiveData<Boolean>().apply { value = false }
-    private val querySubject = PublishSubject.create<String>()
+    private var querySubject = PublishSubject.create<String>()
 
     fun loadContacts() {
         if (inProcess.value == true) {
@@ -38,7 +38,9 @@ class ContactsListViewModel constructor(
         val request = contactInteractor.getList()
 
         compositeDisposable.add(request.subscribe({ contacts ->
-
+            if (!contactInteractor.isGettingListFromServer) {
+                onLoadedContactsSuccess(contactInteractor.getSortedContactsShort())
+            }
         }, { error ->
             onLoadedContactsError(error)
         }, {
@@ -69,6 +71,7 @@ class ContactsListViewModel constructor(
     }
 
     fun setSearchContactsListener() {
+        querySubject = PublishSubject.create<String>()
         val request = querySubject.debounce(INPUT_FREQUENCY_MILLIS, TimeUnit.MILLISECONDS)
                 .switchMap { query ->
                     inProcess.postValue(true)
