@@ -2,6 +2,7 @@ package ru.shumilov.vladislav.contactstest.modules.contacts.ui.detail
 
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
+import android.databinding.DataBindingUtil
 import android.os.Build
 import android.os.Bundle
 import android.support.annotation.RequiresApi
@@ -10,14 +11,14 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import kotlinx.android.synthetic.main.contact_detail.*
 import ru.shumilov.vladislav.contactstest.R
 import ru.shumilov.vladislav.contactstest.app
+import ru.shumilov.vladislav.contactstest.databinding.ContactDetailBinding
 import ru.shumilov.vladislav.contactstest.modules.contacts.models.Contact
 import ru.shumilov.vladislav.contactstest.modules.core.preferences.PhoneHelper
-import ru.shumilov.vladislav.contactstest.modules.core.preferences.TextHelper
 import javax.inject.Inject
+
 
 class ContactDetailFragment : Fragment() {
 
@@ -34,9 +35,9 @@ class ContactDetailFragment : Fragment() {
 
     @Inject
     protected lateinit var viewModelFactory: ContactDetailViewModelFactory
+    private lateinit var binding: ContactDetailBinding
 
     private val phoneHelper = PhoneHelper()
-    private val textHelper = TextHelper()
     private lateinit var contact: Contact
     private val viewModel: ContactDetailViewModel by lazy {
         ViewModelProviders.of(this, viewModelFactory)
@@ -44,7 +45,10 @@ class ContactDetailFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.contact_detail, container, false)
+
+        binding = DataBindingUtil.inflate(inflater, R.layout.contact_detail, container, false)
+
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -53,6 +57,8 @@ class ContactDetailFragment : Fragment() {
         app()?.createContactComponent()?.inject(this)
 
         setListeners()
+
+        binding.viewModel = viewModel
 
         if (savedInstanceState == null) {
             loadContact()
@@ -78,11 +84,6 @@ class ContactDetailFragment : Fragment() {
             }
         })
 
-
-        viewModel.getContact().observe(this, Observer { contact ->
-            showContact(contact)
-        })
-
         phone.setOnClickListener{
             phoneHelper.dialPhoneNumber(contact.phone, this)
         }
@@ -90,20 +91,6 @@ class ContactDetailFragment : Fragment() {
 
     private fun showContactError() {
         Snackbar.make(view!!, getString(R.string.load_contact_error), Snackbar.LENGTH_LONG).show()
-    }
-
-    private fun showContact(contact: Contact?) {
-        if (contact == null) {
-            return
-        }
-
-        this.contact = contact
-
-        name.text = contact.name
-        phone.text = phoneHelper.onlyNumbersToFormattedPhone(contact.phone)
-        temperament.text = textHelper.getTextWithFirstUpper(contact.temperament)
-        educationPeriod.text = contact.educationPeriod?.toString()
-        biography.text = contact.biography
     }
 
     @RequiresApi(Build.VERSION_CODES.M)

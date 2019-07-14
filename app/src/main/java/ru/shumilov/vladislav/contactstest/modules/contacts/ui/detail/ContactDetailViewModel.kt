@@ -7,13 +7,18 @@ import android.text.TextUtils
 import io.reactivex.disposables.CompositeDisposable
 import ru.shumilov.vladislav.contactstest.modules.contacts.interactors.ContactInteractor
 import ru.shumilov.vladislav.contactstest.modules.contacts.models.Contact
+import ru.shumilov.vladislav.contactstest.modules.core.preferences.PhoneHelper
+import ru.shumilov.vladislav.contactstest.modules.core.preferences.TextHelper
+import android.databinding.ObservableField
 
 class ContactDetailViewModel constructor(
         private val contactInteractor: ContactInteractor) : ViewModel() {
 
     private val mustShowContactError = MutableLiveData<Boolean>().apply { false }
-    private val contact = MutableLiveData<Contact>().apply { Contact() }
+    var contact = ObservableField<Contact>()
     private val compositeDisposable = CompositeDisposable()
+    val phoneHelper = PhoneHelper()
+    val textHelper = TextHelper()
 
     fun loadContact(id: String? = null) {
         if (TextUtils.isEmpty(id)) {
@@ -29,17 +34,13 @@ class ContactDetailViewModel constructor(
         }))
     }
 
-    fun getContact(): LiveData<Contact> {
-        return contact
-    }
-
     fun getContactErrorState(): LiveData<Boolean> {
         return mustShowContactError
     }
 
     private fun onLoadedContactSuccess(contact: Contact) {
         mustShowContactError.postValue(false)
-        this.contact.postValue(contact)
+        this.contact.set(contact)
     }
 
     private fun onLoadedContactError() {

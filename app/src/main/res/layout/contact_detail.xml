@@ -1,56 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:padding="@dimen/fragment_horizontal_margin">
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable
+            name="viewModel"
+            type="ru.shumilov.vladislav.contactstest.modules.contacts.ui.detail.ContactDetailViewModel" />
 
-    <TextView
-        android:id="@+id/name"
+    </data>
+
+    <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        style="@style/TextAppearance.AppCompat.Title"
-        tools:text="Name"/>
+        android:layout_height="match_parent"
 
-    <TextView
-        android:id="@+id/phone"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/name"
-        style="@style/MyLink"
-        tools:text="Phone"/>
+        android:padding="@dimen/fragment_horizontal_margin">
 
-    <TextView
-        android:id="@+id/temperament"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/phone"
-        style="@style/MyHintText"
-        tools:text="Temperament"/>
+        <TextView
+            android:id="@+id/name"
+            style="@style/TextAppearance.AppCompat.Title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Name"
+            android:text="@{viewModel.contact.name}"/>
 
-    <TextView
-        android:id="@+id/educationPeriod"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/temperament"
-        android:layout_marginTop="@dimen/default_gap"
-        style="@style/MyHintText"
-        tools:text="EducationPeriod"/>
+        <TextView
+            android:id="@+id/phone"
+            style="@style/MyLink"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/name"
+            tools:text="Phone"
+            android:text="@{viewModel.phoneHelper.onlyNumbersToFormattedPhone(viewModel.contact.phone)}"/>
 
-    <TextView
-        android:id="@+id/biography"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/educationPeriod"
-        android:layout_marginTop="@dimen/default_gap"
-        style="@style/MySmallText"
-        tools:text="Biography"/>
+        <TextView
+            android:id="@+id/temperament"
+            style="@style/MyHintText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/phone"
+            tools:text="Temperament"
+            android:text="@{viewModel.textHelper.getTextWithFirstUpper(viewModel.contact.temperament)}"/>
 
-</android.support.constraint.ConstraintLayout>
+        <TextView
+            android:id="@+id/educationPeriod"
+            style="@style/MyHintText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/default_gap"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/temperament"
+            tools:text="EducationPeriod"
+            android:text="@{viewModel.contact.educationPeriod.toString()}"/>
+
+        <TextView
+            android:id="@+id/biography"
+            style="@style/MySmallText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/default_gap"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/educationPeriod"
+            tools:text="Biography"
+            android:text="@{viewModel.contact.biography}"/>
+
+    </android.support.constraint.ConstraintLayout>
+</layout>
