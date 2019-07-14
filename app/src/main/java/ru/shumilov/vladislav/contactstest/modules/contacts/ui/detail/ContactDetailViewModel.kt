@@ -10,11 +10,13 @@ import ru.shumilov.vladislav.contactstest.modules.contacts.models.Contact
 import ru.shumilov.vladislav.contactstest.modules.core.preferences.PhoneHelper
 import ru.shumilov.vladislav.contactstest.modules.core.preferences.TextHelper
 import android.databinding.ObservableField
+import ru.shumilov.vladislav.contactstest.modules.core.preferences.ErrorHelper
 
 class ContactDetailViewModel constructor(
-        private val contactInteractor: ContactInteractor) : ViewModel() {
+        private val contactInteractor: ContactInteractor,
+        private val errorHelper: ErrorHelper) : ViewModel() {
 
-    private val mustShowContactError = MutableLiveData<Boolean>().apply { false }
+    private val contactError = MutableLiveData<String>()
     var contact = ObservableField<Contact>()
     private val compositeDisposable = CompositeDisposable()
     val phoneHelper = PhoneHelper()
@@ -29,22 +31,25 @@ class ContactDetailViewModel constructor(
 
         compositeDisposable.add(request.subscribe({ contact ->
             onLoadedContactSuccess(contact)
-        }, {
-            onLoadedContactError()
+        }, { error ->
+            onLoadedContactError(error)
         }))
     }
 
-    fun getContactErrorState(): LiveData<Boolean> {
-        return mustShowContactError
+    fun getContactError(): LiveData<String> {
+        return contactError
+    }
+
+    fun clearContactError() {
+        this.contactError.postValue(null)
     }
 
     private fun onLoadedContactSuccess(contact: Contact) {
-        mustShowContactError.postValue(false)
         this.contact.set(contact)
     }
 
-    private fun onLoadedContactError() {
-        mustShowContactError.postValue(true)
+    private fun onLoadedContactError(error: Throwable) {
+        contactError.postValue(errorHelper.getErrorMessage(error))
     }
 
     override fun onCleared() {

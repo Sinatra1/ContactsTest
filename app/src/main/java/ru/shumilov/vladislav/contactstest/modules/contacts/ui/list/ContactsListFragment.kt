@@ -33,7 +33,6 @@ class ContactsListFragment @Inject constructor() : Fragment(), SwipeRefreshLayou
     private lateinit var searchView: SearchView
     private var query: String? = null
     private var inProcess: Boolean? = false
-    private var contactsError: String? = null
     private val contactsListAdapter: ContactsListAdapter by lazy {
         ContactsListAdapter()
     }
@@ -158,11 +157,7 @@ class ContactsListFragment @Inject constructor() : Fragment(), SwipeRefreshLayou
         })
 
         viewModel.getContactsError().observe(this, Observer { contactsError ->
-            this.contactsError = contactsError
-
-            if (contactsError != null) {
-                showContactsError()
-            }
+            showContactsError(contactsError)
         })
 
         viewModel.getContacts().observe(this, Observer { contacts ->
@@ -178,7 +173,11 @@ class ContactsListFragment @Inject constructor() : Fragment(), SwipeRefreshLayou
         progressBar.visibility = View.VISIBLE
     }
 
-    private fun showContactsError() {
+    private fun showContactsError(contactsError: String?) {
+        if (contactsError == null) {
+            return
+        }
+
         Snackbar.make(view!!, contactsError!!, Snackbar.LENGTH_LONG).show()
         viewModel.clearContactsError()
     }

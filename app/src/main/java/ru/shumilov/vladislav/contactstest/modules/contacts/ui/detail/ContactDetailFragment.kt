@@ -76,21 +76,22 @@ class ContactDetailFragment : Fragment() {
     }
 
     private fun setListeners() {
-        viewModel.getContactErrorState().observe(this, Observer { mustShowContactsError ->
-            mustShowContactsError?.let {
-                if (mustShowContactsError) {
-                    showContactError()
-                }
-            }
+        viewModel.getContactError().observe(this, Observer { contactError ->
+            showContactError(contactError)
         })
 
-        phone.setOnClickListener{
+        phone.setOnClickListener {
             phoneHelper.dialPhoneNumber(contact.phone, this)
         }
     }
 
-    private fun showContactError() {
-        Snackbar.make(view!!, getString(R.string.load_contact_error), Snackbar.LENGTH_LONG).show()
+    private fun showContactError(contactError: String?) {
+        if (contactError == null) {
+            return
+        }
+
+        Snackbar.make(view!!, contactError!!, Snackbar.LENGTH_LONG).show()
+        viewModel.clearContactError()
     }
 
     @RequiresApi(Build.VERSION_CODES.M)

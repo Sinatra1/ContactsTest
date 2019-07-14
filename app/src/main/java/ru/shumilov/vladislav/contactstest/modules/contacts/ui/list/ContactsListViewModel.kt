@@ -102,10 +102,6 @@ class ContactsListViewModel constructor(
         return inProcess
     }
 
-    fun setQueryToSubject(query: String) {
-        querySubject.onNext(query)
-    }
-
     private fun onLoadedContactsSuccess(contacts: List<ContactShort>) {
         inProcess.postValue(false)
         mustShowProgress.postValue(false)
