@@ -13,9 +13,7 @@ class ContactRemoteRepository @Inject constructor(
         private val contactApi: ContactApi
 ) : BaseRemoteRepository<ContactShort, Contact, ContactApi>() {
 
-    override fun getApi(): ContactApi {
-        return contactApi
-    }
+    override fun getApi() = contactApi
 
     override fun responseToModel(modelResponse: Contact): ContactShort {
         val contactShort = ContactShort()
@@ -34,8 +32,6 @@ class ContactRemoteRepository @Inject constructor(
         return contactShort
     }
 
-    fun getList(number: String): Observable<List<Contact>> {
-        return contactApi.getList(number)
-    }
+    fun getList(number: String) = contactApi.getList(number)
 
 }

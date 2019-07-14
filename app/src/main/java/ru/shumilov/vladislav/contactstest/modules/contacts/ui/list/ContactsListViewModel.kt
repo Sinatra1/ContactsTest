@@ -24,6 +24,7 @@ class ContactsListViewModel constructor(
     private val contacts = MutableLiveData<List<ContactShort>>().apply { value = ArrayList() }
     private val compositeDisposable = CompositeDisposable()
     private val inProcess = MutableLiveData<Boolean>().apply { value = false }
+    private val querySubject = PublishSubject.create<String>()
 
     fun loadContacts() {
         if (inProcess.value == true) {
@@ -63,7 +64,11 @@ class ContactsListViewModel constructor(
         }))
     }
 
-    fun searchContacts(querySubject: PublishSubject<String>) {
+    fun searchContacts(query: String) {
+        querySubject.onNext(query)
+    }
+
+    fun setSearchContactsListener() {
         val request = querySubject.debounce(INPUT_FREQUENCY_MILLIS, TimeUnit.MILLISECONDS)
                 .switchMap { query ->
                     inProcess.postValue(true)
@@ -95,6 +100,10 @@ class ContactsListViewModel constructor(
 
     fun getInProcessState(): LiveData<Boolean> {
         return inProcess
+    }
+
+    fun setQueryToSubject(query: String) {
+        querySubject.onNext(query)
     }
 
     private fun onLoadedContactsSuccess(contacts: List<ContactShort>) {

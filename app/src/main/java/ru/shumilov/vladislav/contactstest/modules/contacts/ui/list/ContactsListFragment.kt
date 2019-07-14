@@ -13,7 +13,6 @@ import android.text.TextUtils
 import android.view.*
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
-import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.contacts_list.*
 import ru.shumilov.vladislav.contactstest.R
 import ru.shumilov.vladislav.contactstest.app
@@ -115,23 +114,21 @@ class ContactsListFragment @Inject constructor() : Fragment(), SwipeRefreshLayou
             searchView.isIconified = false
         }
 
-        val subject = PublishSubject.create<String>()
-
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextChange(query: String): Boolean {
                 this@ContactsListFragment.query = query
-                subject.onNext(query)
+                viewModel.searchContacts(query)
                 return true
             }
 
             override fun onQueryTextSubmit(query: String): Boolean {
                 this@ContactsListFragment.query = query
-                subject.onNext(query)
+                viewModel.searchContacts(query)
                 return true
             }
         })
 
-        viewModel.searchContacts(subject)
+        viewModel.setSearchContactsListener()
     }
 
     override fun onDestroyView() {
