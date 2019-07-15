@@ -9,6 +9,10 @@ import ru.shumilov.vladislav.contactstest.modules.contacts.interactors.ContactIn
 import ru.shumilov.vladislav.contactstest.modules.contacts.models.ContactShort
 import ru.shumilov.vladislav.contactstest.modules.core.preferences.ErrorHelper
 import java.util.concurrent.TimeUnit
+import android.databinding.ObservableField
+import androidx.navigation.NavController
+import ru.shumilov.vladislav.contactstest.R
+import ru.shumilov.vladislav.contactstest.modules.contacts.ui.detail.ContactDetailFragment
 
 
 class ContactsListViewModel constructor(
@@ -19,21 +23,22 @@ class ContactsListViewModel constructor(
         const val INPUT_FREQUENCY_MILLIS = 1000L //1 sec
     }
 
-    private val mustShowProgress = MutableLiveData<Boolean>().apply { value = false }
+    val isShownProgress = ObservableField<Boolean>().apply { false }
+    private val isShowRefreshingIcon = MutableLiveData<Boolean>().apply { value = false }
     private val contactsError = MutableLiveData<String>()
     private val contacts = MutableLiveData<List<ContactShort>>().apply { value = ArrayList() }
     private val compositeDisposable = CompositeDisposable()
-    private val inProcess = MutableLiveData<Boolean>().apply { value = false }
+    private var inProcess = false
     private var querySubject = PublishSubject.create<String>()
+    private lateinit var navController: NavController
 
     fun loadContacts() {
-        if (inProcess.value == true) {
+        if (inProcess) {
             return
         }
 
-        inProcess.postValue(true)
-
-        mustShowProgress.value = true
+        inProcess = true
+        isShownProgress.set(inProcess)
 
         val request = contactInteractor.getList()
 
@@ -49,11 +54,16 @@ class ContactsListViewModel constructor(
     }
 
     fun loadContactsForce(query: String? = null) {
-        if (inProcess.value == true) {
+        if (inProcess) {
+            if (!isShowRefreshingIcon.value!!) {
+                isShowRefreshingIcon.postValue(false)
+            }
+
             return
         }
 
-        inProcess.postValue(true)
+        inProcess = true
+        isShowRefreshingIcon.postValue(inProcess)
 
         val request = contactInteractor.getListFromServer()
 
@@ -70,11 +80,19 @@ class ContactsListViewModel constructor(
         querySubject.onNext(query)
     }
 
+    fun showContactDetail(contactId: String?) {
+        if (contactId == null || inProcess) {
+            return
+        }
+
+        navController.navigate(R.id.contactDetailFragment, ContactDetailFragment.getBundle(contactId))
+    }
+
     fun setSearchContactsListener() {
         querySubject = PublishSubject.create<String>()
         val request = querySubject.debounce(INPUT_FREQUENCY_MILLIS, TimeUnit.MILLISECONDS)
                 .switchMap { query ->
-                    inProcess.postValue(true)
+                    inProcess = true
                     return@switchMap contactInteractor.getListFromLocal(query)
                 }
 
@@ -85,12 +103,12 @@ class ContactsListViewModel constructor(
         }))
     }
 
-    fun getProgressState(): LiveData<Boolean> {
-        return mustShowProgress
-    }
-
     fun getContactsError(): LiveData<String> {
         return contactsError
+    }
+
+    fun getIsShownRefreshingIcon() : LiveData<Boolean> {
+        return isShowRefreshingIcon
     }
 
     fun clearContactsError() {
@@ -101,19 +119,21 @@ class ContactsListViewModel constructor(
         return contacts
     }
 
-    fun getInProcessState(): LiveData<Boolean> {
-        return inProcess
+    fun setNavController(navController: NavController) {
+        this.navController = navController
     }
 
     private fun onLoadedContactsSuccess(contacts: List<ContactShort>) {
-        inProcess.postValue(false)
-        mustShowProgress.postValue(false)
+        inProcess = false
+        isShownProgress.set(inProcess)
+        isShowRefreshingIcon.postValue(inProcess)
         this.contacts.postValue(contacts)
     }
 
     private fun onLoadedContactsError(error: Throwable) {
-        inProcess.postValue(false)
-        mustShowProgress.postValue(false)
+        inProcess = false
+        isShownProgress.set(inProcess)
+        isShowRefreshingIcon.postValue(inProcess)
         contactsError.postValue(errorHelper.getErrorMessage(error))
     }
 

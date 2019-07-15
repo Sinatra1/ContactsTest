@@ -2,6 +2,7 @@ package ru.shumilov.vladislav.contactstest.modules.contacts.ui.list
 
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
+import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
@@ -16,8 +17,8 @@ import androidx.navigation.Navigation
 import kotlinx.android.synthetic.main.contacts_list.*
 import ru.shumilov.vladislav.contactstest.R
 import ru.shumilov.vladislav.contactstest.app
+import ru.shumilov.vladislav.contactstest.databinding.ContactsListBinding
 import ru.shumilov.vladislav.contactstest.modules.contacts.models.ContactShort
-import ru.shumilov.vladislav.contactstest.modules.contacts.ui.detail.ContactDetailFragment
 import ru.shumilov.vladislav.contactstest.modules.core.ui.RecyclerViewListener
 import javax.inject.Inject
 
@@ -29,10 +30,10 @@ class ContactsListFragment @Inject constructor() : Fragment(), SwipeRefreshLayou
 
     @Inject
     protected lateinit var viewModelFactory: ContactsListViewModelFactory
+    private lateinit var binding: ContactsListBinding
 
     private lateinit var searchView: SearchView
     private var query: String? = null
-    private var inProcess: Boolean? = false
     private val contactsListAdapter: ContactsListAdapter by lazy {
         ContactsListAdapter()
     }
@@ -40,9 +41,7 @@ class ContactsListFragment @Inject constructor() : Fragment(), SwipeRefreshLayou
         ViewModelProviders.of(this, viewModelFactory)
                 .get(ContactsListViewModel::class.java)
     }
-    private val navController: NavController by lazy {
-        Navigation.findNavController(view!!)
-    }
+    private lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,7 +58,11 @@ class ContactsListFragment @Inject constructor() : Fragment(), SwipeRefreshLayou
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.contacts_list, container, false)
+        binding = DataBindingUtil.inflate(inflater, R.layout.contacts_list, container, false)
+
+        binding.viewModel = viewModel
+
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -68,6 +71,9 @@ class ContactsListFragment @Inject constructor() : Fragment(), SwipeRefreshLayou
         contactsListRecyclerView.layoutManager = LinearLayoutManager(context)
         contactsListRecyclerView.adapter = contactsListAdapter
         contactsListRecyclerView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
+
+        navController = Navigation.findNavController(view)
+        viewModel.setNavController(navController)
     }
 
     override fun onResume() {
@@ -137,25 +143,10 @@ class ContactsListFragment @Inject constructor() : Fragment(), SwipeRefreshLayou
     }
 
     override fun onRefresh() {
-        if (inProcess == true) {
-            hideRefreshingIcon()
-            return
-        }
-
         viewModel.loadContactsForce(query)
     }
 
     private fun setListeners() {
-        viewModel.getProgressState().observe(this, Observer { mustShowProgress ->
-            mustShowProgress?.let {
-                if (mustShowProgress) {
-                    showProgress()
-                } else {
-                    hideProgress()
-                }
-            }
-        })
-
         viewModel.getContactsError().observe(this, Observer { contactsError ->
             showContactsError(contactsError)
         })
@@ -164,13 +155,9 @@ class ContactsListFragment @Inject constructor() : Fragment(), SwipeRefreshLayou
             showContacts(contacts)
         })
 
-        viewModel.getInProcessState().observe(this, Observer { inProcess ->
-            this.inProcess = inProcess
+        viewModel.getIsShownRefreshingIcon().observe(this, Observer { isShownRefreshingIcon ->
+            swipeRefreshLayout.isRefreshing = isShownRefreshingIcon!!
         })
-    }
-
-    private fun showProgress() {
-        progressBar.visibility = View.VISIBLE
     }
 
     private fun showContactsError(contactsError: String?) {
@@ -182,32 +169,12 @@ class ContactsListFragment @Inject constructor() : Fragment(), SwipeRefreshLayou
         viewModel.clearContactsError()
     }
 
-    private fun hideProgress() {
-        progressBar.visibility = View.GONE
-
-        hideRefreshingIcon()
-    }
-
-    private fun hideRefreshingIcon() {
-        if (swipeRefreshLayout.isRefreshing) {
-            swipeRefreshLayout.isRefreshing = false
-        }
-    }
-
     private fun showContacts(contacts: List<ContactShort>?) {
         contactsListAdapter.addItems(contacts)
     }
 
     override fun onItemClick(contactShort: ContactShort, position: Int) {
-        showContactDetail(contactShort.id)
-    }
-
-    private fun showContactDetail(contactId: String?) {
-        if (contactId == null || inProcess == true) {
-            return
-        }
-
-        navController.navigate(R.id.contactDetailFragment, ContactDetailFragment.getBundle(contactId))
+        viewModel.showContactDetail(contactShort.id)
     }
 
     override fun onItemAdd(item: ContactShort, position: Int) {

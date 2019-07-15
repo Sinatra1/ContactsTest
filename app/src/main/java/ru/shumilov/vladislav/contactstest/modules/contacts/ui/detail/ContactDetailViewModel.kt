@@ -18,7 +18,7 @@ class ContactDetailViewModel constructor(
 
     private val contactError = MutableLiveData<String>()
     private val compositeDisposable = CompositeDisposable()
-    var contact = ObservableField<Contact>()
+    val contact = ObservableField<Contact>()
     var contactLiveData = MutableLiveData<Contact>()
     val phoneHelper = PhoneHelper()
     val textHelper = TextHelper()
