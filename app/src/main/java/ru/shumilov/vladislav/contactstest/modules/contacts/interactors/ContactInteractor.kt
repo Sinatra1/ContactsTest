@@ -29,6 +29,7 @@ class ContactInteractor @Inject constructor(
     private val dateHelper = DateHelper()
     private var contactsShort: ArrayList<ContactShort> = ArrayList()
     var isGettingListFromServer = true
+    var getListFromServerError: Throwable? = null
 
     fun getById(id: String): Observable<Contact> {
         val request = Observable.create(ObservableOnSubscribe<Contact> { emitter ->
@@ -53,10 +54,16 @@ class ContactInteractor @Inject constructor(
     fun getListFromServer(): Observable<List<ContactShort>> {
         contactsShort = ArrayList()
 
+        getListFromServerError = null
+
         return Observable.range(START_SOURCE_NUMBER, COUNT_SOURCES)
                 .flatMap { number ->
-                    return@flatMap contactRemoteRepository.getList(formatResourceNumber(number))
-                }.subscribeOn(Schedulers.io())
+                    return@flatMap contactRemoteRepository.getList(formatResourceNumber(number)).onErrorReturn { error ->
+                        getListFromServerError = error
+                        return@onErrorReturn emptyList()
+                    }
+                }
+                .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.single())
                 .flatMap { contacts ->
                     val savedContacts = contactLocalRepository.saveList(contacts)

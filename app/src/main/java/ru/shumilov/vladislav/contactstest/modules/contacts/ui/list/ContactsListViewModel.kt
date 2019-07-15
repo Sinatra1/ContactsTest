@@ -49,6 +49,11 @@ class ContactsListViewModel constructor(
         }, { error ->
             onLoadedContactsError(error)
         }, {
+            if (contactInteractor.getListFromServerError != null) {
+                onLoadedContactsError(contactInteractor.getListFromServerError!!)
+                return@subscribe
+            }
+
             onLoadedContactsSuccess(contactInteractor.getSortedContactsShort())
         }))
     }
@@ -72,6 +77,11 @@ class ContactsListViewModel constructor(
         }, { error ->
             onLoadedContactsError(error)
         }, {
+            if (contactInteractor.getListFromServerError != null) {
+                onLoadedContactsError(contactInteractor.getListFromServerError!!)
+                return@subscribe
+            }
+
             onLoadedContactsSuccess(contactInteractor.getSortedContactsShort(query))
         }))
     }
