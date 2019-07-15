@@ -52,6 +52,7 @@ class ContactInteractor @Inject constructor(
     }
 
     fun getListFromServer(): Observable<List<ContactShort>> {
+        isGettingListFromServer = true
         contactsShort = ArrayList()
 
         getListFromServerError = null
