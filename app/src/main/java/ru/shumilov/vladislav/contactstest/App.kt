@@ -11,6 +11,7 @@ import ru.shumilov.vladislav.contactstest.modules.contacts.injection.ContactModu
 import ru.shumilov.vladislav.contactstest.modules.core.injection.AppComponent
 import ru.shumilov.vladislav.contactstest.modules.core.injection.DaggerAppComponent
 import ru.shumilov.vladislav.contactstest.modules.core.injection.modules.AppModule
+import timber.log.Timber
 import kotlin.properties.Delegates
 
 fun Activity.app() = this.application as App
@@ -27,6 +28,7 @@ class App : Application() {
         appComponent = DaggerAppComponent.builder().appModule(AppModule(this)).build()
 
         initRealm()
+        initLogs()
     }
 
     fun createContactComponent(): ContactComponent {
@@ -47,5 +49,11 @@ class App : Application() {
                 Stetho.newInitializerBuilder(this)
                         .enableDumpapp(Stetho.defaultDumperPluginsProvider(this))
                         .enableWebKitInspector(RealmInspectorModulesProvider.builder(this).build()).build())
+    }
+
+    private fun initLogs() {
+        if (BuildConfig.DEBUG) {
+            Timber.plant(Timber.DebugTree())
+        }
     }
 }
